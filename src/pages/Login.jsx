@@ -87,14 +87,14 @@ export default function Login() {
         <div className="relative z-10 flex flex-col justify-between h-full p-12">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-yellow-950 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">S</span>
+              <span className="text-white font-bold text-lg">F</span>
             </div>
-            <span className="text-white text-xl font-semibold">STEAG</span>
+            <span className="text-white text-xl font-semibold">FinGuard</span>
           </div>
           
           <div className="text-white">
-            <h1 className="text-4xl font-bold mb-4"> Empowering bars  with smarter management.</h1>
-            <p className="text-gray-400 text-lg"> Bar management system</p>
+            <h1 className="text-4xl font-bold mb-4"> Empowering Learning  with smarter management.</h1>
+            <p className="text-gray-400 text-lg"> FinGuard management system</p>
           </div>
         </div>
       </div>
@@ -108,7 +108,7 @@ export default function Login() {
         <div className="w-full max-w-md relative z-10">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-white mb-2">Sign in</h2>
-            <p className="text-gray-400">Welcome to STEAG Admin Panel</p>
+            <p className="text-gray-400">Welcome to FinGuard Admin Panel</p>
           </div>
 
           {/* Error Message */}
