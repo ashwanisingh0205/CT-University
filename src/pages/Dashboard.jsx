@@ -1,176 +1,100 @@
 import React, { useState, useEffect } from 'react'
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../components/ui/card'
-import { subscribeToOrders, updateOrderStatus } from '../firebase/orderService'
-import TestOrders from '../components/TestOrders'
+import { Button } from '../components/ui/button'
+import { Modal } from '../components/ui/modal'
+import api from '../api/axios'
 
 export default function Dashboard() {
-  const [orders, setOrders] = useState([])
-  const [timers, setTimers] = useState({})
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  // User management state
+  const [users, setUsers] = useState([])
+  const [usersLoading, setUsersLoading] = useState(false)
+  const [usersError, setUsersError] = useState(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalUsers, setTotalUsers] = useState(0)
 
-  // Subscribe to Firebase orders in real-time
-  useEffect(() => {
-    setLoading(true)
-    
-    const unsubscribe = subscribeToOrders((fetchedOrders) => {
-      // Process orders and add default values for missing fields
-      const processedOrders = fetchedOrders.map(order => ({
-        id: order.id,
-        customerName: order.customerName || 'Unknown Customer',
-        tableNumber: order.tableNumber || 'Unknown Table',
-        items: order.items || [],
-        total: order.total || 0,
-        status: order.status || 'pending',
-        orderTime: order.orderTime ? new Date(order.orderTime) : new Date(),
-        acceptedTime: order.acceptedTime ? new Date(order.acceptedTime) : null,
-        createdAt: order.createdAt
-      }));
+  // Delete functionality state
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [userToDelete, setUserToDelete] = useState(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteError, setDeleteError] = useState(null)
+
+  // Fetch users from API
+  const fetchUsers = async (page = 1, limit = 10) => {
+    try {
+      setUsersLoading(true)
+      setUsersError(null)
       
-      setOrders(processedOrders);
-      setLoading(false);
-      setError(null);
-    });
+      const response = await api.get(`/api/admin/users?page=${page}&limit=${limit}`)
+      
+      if (response.data.success) {
+        setUsers(response.data.data.users)
+        setCurrentPage(response.data.data.pagination.currentPage)
+        setTotalPages(response.data.data.pagination.totalPages)
+        setTotalUsers(response.data.data.pagination.totalUsers)
+      } else {
+        setUsersError('Failed to fetch users')
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error)
+      setUsersError('Failed to fetch users. Please try again.')
+    } finally {
+      setUsersLoading(false)
+    }
+  }
 
-    // Cleanup subscription on unmount
-    return () => {
-      unsubscribe();
-    };
-  }, []);
-
-  // Timer effect for accepted orders
+  // Fetch users on component mount
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTimers(prevTimers => {
-        const newTimers = { ...prevTimers }
-        Object.keys(newTimers).forEach(orderId => {
-          if (newTimers[orderId] > 0) {
-            newTimers[orderId] -= 1
-          } else {
-            delete newTimers[orderId]
-            // Auto-complete order after 5 minutes
-            completeOrder(orderId);
-          }
-        })
-        return newTimers
-      })
-    }, 1000)
-
-    return () => clearInterval(interval)
+    fetchUsers()
   }, [])
 
-  const acceptOrder = async (orderId) => {
+  // Delete user function
+  const deleteUser = async (userId) => {
     try {
-      await updateOrderStatus(orderId, 'accepted');
+      setDeleteLoading(true)
+      setDeleteError(null)
       
-      // Update local state
-      setOrders(prevOrders => 
-        prevOrders.map(order => 
-          order.id === orderId 
-            ? { ...order, status: "accepted", acceptedTime: new Date() }
-            : order
-        )
-      );
+      const response = await api.delete(`/api/admin/users/${userId}/delete`)
       
-      // Start timer
-      setTimers(prevTimers => ({
-        ...prevTimers,
-        [orderId]: 300 // 5 minutes = 300 seconds
-      }));
+      if (response.data.success) {
+        // Remove user from local state
+        setUsers(prevUsers => prevUsers.filter(user => user._id !== userId))
+        // Update total users count
+        setTotalUsers(prev => prev - 1)
+        // Close modal
+        setDeleteModalOpen(false)
+        setUserToDelete(null)
+      } else {
+        setDeleteError('Failed to delete user. Please try again.')
+      }
     } catch (error) {
-      console.error('Error accepting order:', error);
-      setError('Failed to accept order. Please try again.');
+      console.error('Error deleting user:', error)
+      setDeleteError('Failed to delete user. Please try again.')
+    } finally {
+      setDeleteLoading(false)
     }
   }
 
-  const cancelOrder = async (orderId) => {
-    try {
-      await updateOrderStatus(orderId, 'cancelled');
-      
-      // Update local state
-      setOrders(prevOrders => 
-        prevOrders.map(order => 
-          order.id === orderId 
-            ? { ...order, status: "cancelled" }
-            : order
-        )
-      );
-      
-      // Remove timer
-      setTimers(prevTimers => {
-        const newTimers = { ...prevTimers }
-        delete newTimers[orderId]
-        return newTimers
-      });
-    } catch (error) {
-      console.error('Error cancelling order:', error);
-      setError('Failed to cancel order. Please try again.');
-    }
+  // Open delete confirmation modal
+  const openDeleteModal = (user) => {
+    setUserToDelete(user)
+    setDeleteModalOpen(true)
+    setDeleteError(null)
   }
 
-  const completeOrder = async (orderId) => {
-    try {
-      await updateOrderStatus(orderId, 'completed');
-      
-      // Update local state
-      setOrders(prevOrders => 
-        prevOrders.map(order => 
-          order.id === orderId 
-            ? { ...order, status: "completed" }
-            : order
-        )
-      );
-    } catch (error) {
-      console.error('Error completing order:', error);
-      setError('Failed to complete order. Please try again.');
-    }
+  // Close delete confirmation modal
+  const closeDeleteModal = () => {
+    setDeleteModalOpen(false)
+    setUserToDelete(null)
+    setDeleteError(null)
   }
 
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
-      case 'accepted': return 'bg-blue-100 text-blue-800 border-blue-200'
-      case 'completed': return 'bg-green-100 text-green-800 border-green-200'
-      case 'cancelled': return 'bg-red-100 text-red-800 border-red-200'
-      default: return 'bg-gray-100 text-gray-800 border-gray-200'
-    }
-  }
-
-  const pendingOrders = orders.filter(order => order.status === 'pending')
-  const acceptedOrders = orders.filter(order => order.status === 'accepted')
-  const completedOrders = orders.filter(order => order.status === 'completed')
-
-  if (loading) {
+  if (usersLoading && users.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600">Loading orders...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-            <strong className="font-bold">Error: </strong>
-            <span className="block sm:inline">{error}</span>
-            <button 
-              onClick={() => setError(null)}
-              className="float-right font-bold text-red-700 hover:text-red-900"
-            >
-              ×
-            </button>
-          </div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -182,56 +106,21 @@ export default function Dashboard() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-slate-800 mb-2">Dashboard</h1>
-          <p className="text-slate-600">Manage your bar orders efficiently</p>
+          <p className="text-slate-600">Manage your system efficiently</p>
         </div>
-
-        {/* Test Orders Component */}
-        <TestOrders />
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mb-8">
           <Card className="bg-white shadow-lg border-0">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-slate-600">Total Orders</p>
-                  <p className="text-2xl font-bold text-slate-800">{orders.length}</p>
+                  <p className="text-sm font-medium text-slate-600">Total Users</p>
+                  <p className="text-2xl font-bold text-purple-600">{totalUsers}</p>
                 </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                  </svg>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white shadow-lg border-0">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-600">Pending</p>
-                  <p className="text-2xl font-bold text-yellow-600">{pendingOrders.length}</p>
-                </div>
-                <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white shadow-lg border-0">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-600">Completed</p>
-                  <p className="text-2xl font-bold text-green-600">{completedOrders.length}</p>
-                </div>
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                   </svg>
                 </div>
               </div>
@@ -239,261 +128,249 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Orders Section */}
-        <div className="space-y-8">
-          {/* Pending Orders */}
-          <div>
-            <h2 className="text-2xl font-semibold text-slate-800 mb-4 flex items-center">
-              <span className="w-3 h-3 bg-yellow-400 rounded-full mr-3"></span>
-              Pending Orders ({pendingOrders.length})
-            </h2>
-            {pendingOrders.length === 0 ? (
-              <div className="bg-white rounded-lg shadow-lg border-0 p-8 text-center">
-                <p className="text-slate-500 text-lg">No pending orders at the moment</p>
-              </div>
-            ) : (
-              <div className="bg-white rounded-lg shadow-lg border-0 overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-slate-50 border-b border-slate-200">
-                      <tr>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Customer</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Table</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Items</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Total</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Status</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200">
-                      {pendingOrders.map((order) => (
-                        <tr key={order.id} className="hover:bg-slate-50 transition-colors">
-                          <td className="px-6 py-4">
-                            <div>
-                              <p className="font-medium text-slate-800">{order.customerName}</p>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="text-sm text-slate-600">Table {order.tableNumber}</span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="space-y-2">
-                              {order.items && order.items.length > 0 ? (
-                                order.items.map((item, index) => (
-                                  <div key={index} className="flex items-center space-x-3">
-                                    <img 
-                                      src={item.image || '/src/assets/logo/bar.jpg'} 
-                                      alt={item.name}
-                                      className="w-8 h-8 rounded object-cover"
-                                      onError={(e) => {
-                                        e.target.src = 'https://via.placeholder.com/32x32?text=Drink'
-                                      }}
-                                    />
-                                    <div>
-                                      <p className="text-sm font-medium text-slate-800">{item.name}</p>
-                                      <p className="text-xs text-slate-600">Qty: {item.quantity} × ${item.price || 0}</p>
-                                    </div>
-                                  </div>
-                                ))
-                              ) : (
-                                <p className="text-sm text-slate-500">No items</p>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="font-medium text-slate-800">${order.total || 0}</span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
-                              {order.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() => acceptOrder(order.id)}
-                                className="bg-green-600 hover:bg-green-700 text-white text-sm font-medium py-2 px-3 rounded transition-colors"
-                              >
-                                Accept
-                              </button>
-                              <button
-                                onClick={() => cancelOrder(order.id)}
-                                className="bg-red-600 hover:bg-red-700 text-white text-sm font-medium py-2 px-3 rounded transition-colors"
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
+        {/* User Management Section */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">User Management</h2>
+              <p className="text-slate-600">Manage registered users and their accounts</p>
+            </div>
+            <button
+              onClick={() => fetchUsers(currentPage, 10)}
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors duration-200 flex items-center gap-2"
+              disabled={usersLoading}
+            >
+              {usersLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Refreshing...
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Refresh
+                </>
+              )}
+            </button>
           </div>
 
-          {/* Accepted Orders */}
-          {acceptedOrders.length > 0 && (
-            <div>
-              <h2 className="text-2xl font-semibold text-slate-800 mb-4 flex items-center">
-                <span className="w-3 h-3 bg-blue-400 rounded-full mr-3"></span>
-                Accepted Orders ({acceptedOrders.length})
-              </h2>
-              <div className="bg-white rounded-lg shadow-lg border-0 overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-slate-50 border-b border-slate-200">
-                      <tr>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Customer</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Table</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Items</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Total</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Status</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Timer</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200">
-                      {acceptedOrders.map((order) => (
-                        <tr key={order.id} className="hover:bg-slate-50 transition-colors">
-                          <td className="px-6 py-4">
-                            <div>
-                              <p className="font-medium text-slate-800">{order.customerName}</p>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="text-sm text-slate-600">Table {order.tableNumber}</span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="space-y-2">
-                              {order.items && order.items.length > 0 ? (
-                                order.items.map((item, index) => (
-                                  <div key={index} className="flex items-center space-x-3">
-                                    <img 
-                                      src={item.image || '/src/assets/logo/bar.jpg'} 
-                                      alt={item.name}
-                                      className="w-8 h-8 rounded object-cover"
-                                      onError={(e) => {
-                                        e.target.src = 'https://via.placeholder.com/32x32?text=Drink'
-                                      }}
-                                    />
-                                    <div>
-                                      <p className="text-sm font-medium text-slate-800">{item.name}</p>
-                                      <p className="text-xs text-slate-600">Qty: {item.quantity}</p>
-                                    </div>
-                                  </div>
-                                ))
-                              ) : (
-                                <p className="text-sm text-slate-500">No items</p>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="font-medium text-slate-800">${order.total || 0}</span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
-                              {order.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="text-sm font-mono text-blue-600">
-                              {timers[order.id] ? formatTime(timers[order.id]) : '--:--'}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+          {/* Users Table */}
+          <Card className="bg-white shadow-lg border-0">
+            <CardContent className="p-0">
+              {usersError && (
+                <div className="p-6 border-b border-slate-200">
+                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    <strong className="font-bold">Error: </strong>
+                    <span>{usersError}</span>
+                    <button 
+                      onClick={() => setUsersError(null)}
+                      className="float-right font-bold text-red-700 hover:text-red-900"
+                    >
+                      ×
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
+              )}
 
-          {/* Completed Orders */}
-          {completedOrders.length > 0 && (
-            <div>
-              <h2 className="text-2xl font-semibold text-slate-800 mb-4 flex items-center">
-                <span className="w-3 h-3 bg-green-400 rounded-full mr-3"></span>
-                Completed Orders ({completedOrders.length})
-              </h2>
-              <div className="bg-white rounded-lg shadow-lg border-0 overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-slate-50 border-b border-slate-200">
-                      <tr>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Customer</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Table</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Items</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Total</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200">
-                      {completedOrders.map((order) => (
-                        <tr key={order.id} className="hover:bg-slate-50 transition-colors">
-                          <td className="px-6 py-4">
-                            <div>
-                              <p className="font-medium text-slate-800">{order.customerName}</p>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="text-sm text-slate-600">Table {order.tableNumber}</span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="space-y-2">
-                              {order.items && order.items.length > 0 ? (
-                                order.items.map((item, index) => (
-                                  <div key={index} className="flex items-center space-x-3">
-                                    <img 
-                                      src={item.image || '/src/assets/logo/bar.jpg'} 
-                                      alt={item.name}
-                                      className="w-8 h-8 rounded object-cover"
-                                      onError={(e) => {
-                                        e.target.src = 'https://via.placeholder.com/32x32?text=Drink'
-                                      }}
-                                    />
-                                    <div>
-                                      <p className="text-sm font-medium text-slate-800">{item.name}</p>
-                                      <p className="text-xs text-slate-600">Qty: {item.quantity}</p>
-                                    </div>
-                                  </div>
-                                ))
-                              ) : (
-                                <p className="text-sm text-slate-500">No items</p>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="font-medium text-slate-800">${order.total || 0}</span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
-                              {order.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+              {usersLoading ? (
+                <div className="p-12 text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+                  <p className="text-slate-600">Loading users...</p>
                 </div>
-              </div>
-            </div>
-          )}
+              ) : users.length === 0 ? (
+                <div className="p-12 text-center">
+                  <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium text-slate-900 mb-2">No users found</h3>
+                  <p className="text-slate-500">Users will appear here when they register</p>
+                </div>
+              ) : (
+                <>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-slate-50 border-b border-slate-200">
+                        <tr>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">User ID</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Full Name</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Email</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Status</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Created At</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200">
+                        {users.map((user) => (
+                          <tr key={user._id} className="hover:bg-slate-50 transition-colors">
+                            <td className="px-6 py-4">
+                              <span className="text-sm font-mono text-slate-600 bg-slate-100 px-2 py-1 rounded">
+                                {user._id.slice(-8)}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-semibold">
+                                  {user.fullName.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                  <p className="font-medium text-slate-800">{user.fullName}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="text-slate-600">{user.email}</span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center space-x-2">
+                                <span className={`px-3 py-1 rounded-full text-xs font-medium border ${
+                                  user.isActive && !user.isBlocked 
+                                    ? 'bg-green-100 text-green-800 border-green-200' 
+                                    : user.isBlocked 
+                                    ? 'bg-red-100 text-red-800 border-red-200'
+                                    : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                                }`}>
+                                  {user.isActive && !user.isBlocked ? 'Active' : user.isBlocked ? 'Blocked' : 'Inactive'}
+                                </span>
+                                {user.isBlocked && (
+                                  <span className="text-xs text-slate-500">
+                                    {user.blockReason && `(${user.blockReason})`}
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="text-sm text-slate-600">
+                                {new Date(user.createdAt).toLocaleDateString()}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <Button
+                                onClick={() => openDeleteModal(user)}
+                                variant="outline"
+                                size="sm"
+                                className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                              >
+                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Delete
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
 
-          {/* No Orders Message */}
-          {orders.length === 0 && !loading && (
-            <div className="bg-white rounded-lg shadow-lg border-0 p-12 text-center">
-              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-slate-900 mb-2">No orders yet</h3>
-              <p className="text-slate-500">Orders will appear here when customers place them</p>
-            </div>
-          )}
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="px-6 py-4 border-t border-slate-200 bg-slate-50">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm text-slate-600">
+                          Showing page {currentPage} of {totalPages} ({totalUsers} total users)
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => fetchUsers(currentPage - 1, 10)}
+                            disabled={currentPage === 1}
+                            className="px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Previous
+                          </button>
+                          <button
+                            onClick={() => fetchUsers(currentPage + 1, 10)}
+                            disabled={currentPage === totalPages}
+                            className="px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Delete Confirmation Modal */}
+        <Modal
+          isOpen={deleteModalOpen}
+          onClose={closeDeleteModal}
+          title="Delete User Confirmation"
+        >
+          <div className="p-6">
+            {userToDelete && (
+              <>
+                <div className="mb-6">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-semibold text-lg">
+                      {userToDelete.fullName.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-800">{userToDelete.fullName}</h3>
+                      <p className="text-slate-600">{userToDelete.email}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div className="flex items-start space-x-3">
+                      <svg className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
+                      <div>
+                        <h4 className="text-sm font-medium text-red-800">Warning</h4>
+                        <p className="text-sm text-red-700 mt-1">
+                          This action cannot be undone. This will permanently delete the user account and all associated data.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {deleteError && (
+                  <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                    {deleteError}
+                  </div>
+                )}
+
+                <div className="flex items-center justify-end space-x-3">
+                  <Button
+                    onClick={closeDeleteModal}
+                    variant="outline"
+                    disabled={deleteLoading}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => deleteUser(userToDelete._id)}
+                    disabled={deleteLoading}
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    {deleteLoading ? (
+                      <div className="flex items-center space-x-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Deleting...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Delete User
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
+        </Modal>
       </div>
     </div>
   )

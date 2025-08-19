@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import pic from '../assets/logo/pic.jpg'
 import bar from '../assets/logo/bar.jpg'
-// import BackgroundBeams from '../components/ui/BackgroundBeams';
-import { BackgroundBeamsWithCollision } from '../components/ui/background-beams-with-collision';
+import image from '../assets/logo/gul.jpg'
+import BackgroundBeams from '../components/ui/background-beams-with-collision';
 import { useRef } from 'react';
+import { Input, Button, Alert } from '../components/ui/index';
 
 
 export default function Login() {
@@ -29,18 +30,19 @@ export default function Login() {
     setLoading(true);
     
     try {
-      const response = await api.post('auth/login', {
+      const response = await api.post('api/admin/login', {
         username,
         password,
       });
       console.log('response',response)
+      console.log('response',response.data.data.accessToken)
       
       if (response && response.data) {
-        if (response.data.access_token) {
-          sessionStorage.setItem('token', response.data.access_token);
+        if (response.data.data.accessToken) {
+          sessionStorage.setItem('token', response.data.data.accessToken);
           
           // No need to manually set Authorization header - axios interceptor handles this
-          
+          console.log('done')
           setuserId('');
           setPassword('');
           
@@ -75,88 +77,136 @@ export default function Login() {
         {/* Background Image */}
         <div className="absolute inset-0 backdrop-blur-xs">
           <img 
-            src={bar} 
+            src={image} 
             alt="Background" 
             className="w-full h-full object-cover"
           />
-          {/* Dark overlay for better text readability */}
-          <div className="absolute inset-0 bg-black/50"></div>
+          {/* Enhanced overlay with gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-purple-900/40 to-black/60"></div>
         </div>
         
         {/* Logo and content */}
         <div className="relative z-10 flex flex-col justify-between h-full p-12">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-yellow-950 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">F</span>
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-2xl animate-pulse">
+              <span className="text-white font-bold text-2xl">F</span>
             </div>
-            <span className="text-white text-xl font-semibold">FinGuard</span>
+            <span className="text-white text-2xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+              FinGuard
+            </span>
           </div>
           
-          <div className="text-white">
-            <h1 className="text-4xl font-bold mb-4"> Empowering Learning  with smarter management.</h1>
-            <p className="text-gray-400 text-lg"> FinGuard management system</p>
+          <div className="text-white space-y-6">
+            <div className="space-y-4">
+              <h1 className="text-5xl font-bold leading-tight">
+                <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                  Empowering Learning
+                </span>
+                <br />
+                <span className="text-white">with Smarter Management</span>
+              </h1>
+              <p className="text-purple-200 text-xl leading-relaxed">
+                Transform your educational journey with our comprehensive learning management system
+              </p>
+            </div>
+            
+            {/* Feature highlights */}
+            <div className="grid grid-cols-2 gap-4 mt-8">
+              <div className="flex items-center space-x-3 text-purple-200">
+                <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                  <span className="text-purple-400">📚</span>
+                </div>
+                <span className="text-sm font-medium">Interactive Learning</span>
+              </div>
+              <div className="flex items-center space-x-3 text-purple-200">
+                <div className="w-8 h-8 bg-cyan-500/20 rounded-lg flex items-center justify-center">
+                  <span className="text-cyan-400">📊</span>
+                </div>
+                <span className="text-sm font-medium">Progress Tracking</span>
+              </div>
+              <div className="flex items-center space-x-3 text-purple-200">
+                <div className="w-8 h-8 bg-pink-500/20 rounded-lg flex items-center justify-center">
+                  <span className="text-pink-400">🎯</span>
+                </div>
+                <span className="text-sm font-medium">Smart Analytics</span>
+              </div>
+              <div className="flex items-center space-x-3 text-purple-200">
+                <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                  <span className="text-green-400">🚀</span>
+                </div>
+                <span className="text-sm font-medium">Fast Performance</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="w-full lg:w-1/2 bg-[#1F1D1B] flex items-center justify-center p-8 relative overflow-hidden">
-        {/* Background Beams With Collision */}
-        <BackgroundBeamsWithCollision className="absolute inset-0 w-full h-full z-0" />
+      <div className="w-full lg:w-1/2 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-8 relative overflow-hidden">
+        {/* Background Beams */}
+        <BackgroundBeams />
 
         {/* Login Form Content */}
         <div className="w-full max-w-md relative z-10">
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-white mb-2">Sign in</h2>
-            <p className="text-gray-400">Welcome to FinGuard Admin Panel</p>
+            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center shadow-2xl">
+              <span className="text-3xl text-white">🔐</span>
+            </div>
+            <h2 className="text-3xl font-bold text-white mb-2 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+              Welcome Back
+            </h2>
+            <p className="text-purple-200 text-lg">Sign in to your FinGuard account</p>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-900/50 border border-red-500/50 text-red-200 p-4 rounded-lg mb-6 flex items-start">
-              <svg className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              <span className="text-sm">{error}</span>
-            </div>
+            <Alert 
+              type="error" 
+              title="Login Failed" 
+              className="mb-6"
+            >
+              {error}
+            </Alert>
           )}
 
           {/* Login Form */}
           <form onSubmit={handleLogin} className="space-y-6">
-            {/* Email Field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Username
-              </label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setuserId(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 text-white placeholder-gray-400"
-                placeholder="Username"
-                required
-                disabled={loading}
-              />
-            </div>
+            {/* Username Field */}
+            <Input
+              label="Username"
+              type="text"
+              value={username}
+              onChange={(e) => setuserId(e.target.value)}
+              placeholder="Enter your username"
+              required
+              disabled={loading}
+              icon="👤"
+              variant="glass"
+              size="lg"
+              className="text-white"
+            />
 
             {/* Password Field */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-purple-200 mb-2">
                 Password
               </label>
               <div className="relative">
-                <input
+                <Input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 text-white placeholder-gray-400"
-                  placeholder="Password"
+                  placeholder="Enter your password"
                   required
                   disabled={loading}
+                  icon="🔒"
+                  variant="glass"
+                  size="lg"
+                  className="text-white pr-12"
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-300"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-purple-300 hover:text-purple-200 transition-colors duration-200"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -174,64 +224,104 @@ export default function Login() {
             </div>
 
             {/* Sign In Button */}
-            <button
+            <Button
               type="submit"
-              className="w-full bg-pink-600 hover:bg-pink-700 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              variant="primary"
+              size="lg"
               disabled={loading}
+              loading={loading}
+              className="w-full h-14 text-lg font-semibold shadow-2xl hover:shadow-purple-500/25"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
-            </button>
+              {loading ? 'Signing in...' : 'Sign in to FinGuard'}
+            </Button>
 
             {/* Register Button */}
-            <button
+            {/* <button
               type="button"
               className="w-full mt-2 bg-gray-700 hover:bg-gray-600 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200"
               onClick={() => setShowRegister(true)}
             >
               Register
-            </button>
+            </button> */}
           </form>
         </div>
       </div>
 
       {/* Register Dialog */}
       {showRegister && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div ref={registerDialogRef} className="bg-[#23201d] rounded-xl shadow-lg p-8 w-full max-w-md relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div ref={registerDialogRef} className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl p-8 w-full max-w-md relative border border-purple-500/20">
             <button
-              className="absolute top-2 right-2 text-gray-400 hover:text-white text-2xl font-bold"
+              className="absolute top-4 right-4 text-purple-300 hover:text-white text-2xl font-bold transition-colors duration-200"
               onClick={() => setShowRegister(false)}
               aria-label="Close"
             >
               &times;
             </button>
-            <h2 className="text-xl font-bold text-white mb-4 text-center">Register</h2>
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center">
+                <span className="text-2xl text-white">📝</span>
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-2">Create Account</h2>
+              <p className="text-purple-200">Join the FinGuard community</p>
+            </div>
             <form className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Service Number</label>
-                <input type="text" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400" placeholder="Service Number" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Name</label>
-                <input type="text" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400" placeholder="Name" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Password</label>
-                <input type="password" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400" placeholder="Password" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Mobile Number</label>
-                <input type="tel" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400" placeholder="Mobile Number" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Rank</label>
-                <input type="text" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400" placeholder="Rank" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">ID</label>
-                <input type="text" className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400" placeholder="ID" required />
-              </div>
-              <button type="submit" className="w-full bg-pink-600 hover:bg-pink-700 text-white py-2 px-4 rounded-lg font-medium transition-colors duration-200 mt-2">Register</button>
+              <Input
+                label="Service Number"
+                type="text"
+                placeholder="Enter service number"
+                variant="glass"
+                size="md"
+                className="text-white"
+              />
+              <Input
+                label="Full Name"
+                type="text"
+                placeholder="Enter your full name"
+                variant="glass"
+                size="md"
+                className="text-white"
+              />
+              <Input
+                label="Password"
+                type="password"
+                placeholder="Create a password"
+                variant="glass"
+                size="md"
+                className="text-white"
+              />
+              <Input
+                label="Mobile Number"
+                type="tel"
+                placeholder="Enter mobile number"
+                variant="glass"
+                size="md"
+                className="text-white"
+              />
+              <Input
+                label="Rank"
+                type="text"
+                placeholder="Enter your rank"
+                variant="glass"
+                size="md"
+                className="text-white"
+              />
+              <Input
+                label="ID"
+                type="text"
+                placeholder="Enter your ID"
+                variant="glass"
+                size="md"
+                className="text-white"
+              />
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                className="w-full mt-6"
+              >
+                Create Account
+              </Button>
             </form>
           </div>
         </div>

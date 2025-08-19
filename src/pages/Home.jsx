@@ -5,7 +5,7 @@ import Inventory from './Inventory'
 
 import Layout from '../ui/Layout'
 import Orders from './Orders'
-import Users from './Users'
+// import Users from './Users'
 import Settings from './Settings'
 
 export default function Home() {
@@ -22,11 +22,8 @@ export default function Home() {
         return <Inventory />
       
       case 'users':
-        return <Users />
-        case 'analytics':
-        return <Analytics />
-        case 'settings':
         return <Settings />
+       
       default:
         return <Dashboard />
     }

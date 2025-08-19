@@ -1,223 +1,196 @@
 "use client";
-import { cn } from "../../lib/utils";
-import { motion, AnimatePresence } from "motion/react";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useEffect, useRef } from 'react';
 
-export const BackgroundBeamsWithCollision = ({
-  children,
-  className
-}) => {
-  const containerRef = useRef(null);
-  const parentRef = useRef(null);
-
-  // Helper to get a random number in a range
-  const randomInRange = (min, max) => Math.random() * (max - min) + min;
-
-  // Possible classNames for beams (heights and optional color variations)
-  const beamClassOptions = [
-    "h-6",
-    "h-8",
-    "h-10",
-    "h-12",
-    "h-14",
-    "h-16",
-    // Optionally add color variations:
-    // "h-10 bg-gradient-to-t from-indigo-500 via-purple-500 to-transparent",
-    // "h-12 bg-gradient-to-t from-pink-500 via-purple-500 to-transparent",
-  ];
-
-  // Helper to pick a random className
-  const randomClass = () => beamClassOptions[Math.floor(Math.random() * beamClassOptions.length)];
-
-  // Generate beams with randomized duration, repeatDelay, and className
-  const beams = [
-    {
-      initialX: 100,
-      translateX: 100,
-      duration: randomInRange(4, 10),
-      repeatDelay: randomInRange(2, 6),
-      delay: 0,
-      className: randomClass(),
-    },
-    {
-      initialX: 400,
-      translateX: 400,
-      duration: randomInRange(4, 10),
-      repeatDelay: randomInRange(2, 6),
-      delay: 2,
-      className: randomClass(),
-    },
-    {
-      initialX: 700,
-      translateX: 700,
-      duration: randomInRange(4, 10),
-      repeatDelay: randomInRange(2, 6),
-      delay: 4,
-      className: randomClass(),
-    },
-  ];
-
-  return (
-    <div
-      ref={parentRef}
-      className={cn(
-        "h-full bg-[#1F1D1B] relative flex items-center w-full justify-center overflow-hidden",
-        className
-      )}>
-      {beams.map((beam) => (
-        <CollisionMechanism
-          key={beam.initialX + "beam-idx"}
-          beamOptions={beam}
-          containerRef={containerRef}
-          parentRef={parentRef} />
-      ))}
-      {children}
-      <div
-        ref={containerRef}
-        className="absolute bottom-0 bg-neutral-100 w-full inset-x-0 pointer-events-none"
-        style={{
-          boxShadow:
-            "0 0 24px rgba(34, 42, 53, 0.06), 0 1px 1px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(34, 42, 53, 0.04), 0 0 4px rgba(34, 42, 53, 0.08), 0 16px 68px rgba(47, 48, 55, 0.05), 0 1px 0 rgba(255, 255, 255, 0.1) inset",
-        }}></div>
-    </div>
-  );
-};
-
-const CollisionMechanism = React.forwardRef(({ parentRef, containerRef, beamOptions = {} }, ref) => {
-  const beamRef = useRef(null);
-  const [collision, setCollision] = useState({
-    detected: false,
-    coordinates: null,
-  });
-  const [beamKey, setBeamKey] = useState(0);
-  const [cycleCollisionDetected, setCycleCollisionDetected] = useState(false);
+const BackgroundBeams = () => {
+  const canvasRef = useRef(null);
 
   useEffect(() => {
-    const checkCollision = () => {
-      if (
-        beamRef.current &&
-        containerRef.current &&
-        parentRef.current &&
-        !cycleCollisionDetected
-      ) {
-        const beamRect = beamRef.current.getBoundingClientRect();
-        const containerRect = containerRef.current.getBoundingClientRect();
-        const parentRect = parentRef.current.getBoundingClientRect();
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
 
-        if (beamRect.bottom >= containerRect.top) {
-          const relativeX =
-            beamRect.left - parentRect.left + beamRect.width / 2;
-          const relativeY = beamRect.bottom - parentRect.top;
-
-          setCollision({
-            detected: true,
-            coordinates: {
-              x: relativeX,
-              y: relativeY,
-            },
-          });
-          setCycleCollisionDetected(true);
-        }
-      }
+    // Set canvas size
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     };
 
-    const animationInterval = setInterval(checkCollision, 50);
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
-    return () => clearInterval(animationInterval);
-  }, [cycleCollisionDetected, containerRef]);
+    // Particle class
+    class Particle {
+      constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.vx = (Math.random() - 0.5) * 2;
+        this.vy = (Math.random() - 0.5) * 2;
+        this.size = Math.random() * 3 + 1;
+        this.color = color;
+        this.alpha = Math.random() * 0.5 + 0.3;
+        this.life = Math.random() * 100 + 50;
+        this.maxLife = this.life;
+      }
 
-  useEffect(() => {
-    if (collision.detected && collision.coordinates) {
-      setTimeout(() => {
-        setCollision({ detected: false, coordinates: null });
-        setCycleCollisionDetected(false);
-      }, 2000);
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life--;
+        this.alpha = (this.life / this.maxLife) * 0.5 + 0.3;
+        
+        // Bounce off edges
+        if (this.x <= 0 || this.x >= canvas.width) this.vx *= -1;
+        if (this.y <= 0 || this.y >= canvas.height) this.vy *= -1;
+      }
 
-      setTimeout(() => {
-        setBeamKey((prevKey) => prevKey + 1);
-      }, 2000);
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
     }
-  }, [collision]);
+
+    // Beam class
+    class Beam {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.targetX = Math.random() * canvas.width;
+        this.targetY = Math.random() * canvas.height;
+        this.speed = Math.random() * 0.02 + 0.01;
+        this.progress = 0;
+        this.width = Math.random() * 2 + 1;
+        this.color = `hsl(${Math.random() * 60 + 240}, 70%, 60%)`;
+        this.particles = [];
+      }
+
+      update() {
+        this.progress += this.speed;
+        if (this.progress >= 1) {
+          this.progress = 0;
+          this.x = this.targetX;
+          this.y = this.targetY;
+          this.targetX = Math.random() * canvas.width;
+          this.targetY = Math.random() * canvas.height;
+        }
+
+        // Create particles along the beam
+        if (Math.random() < 0.3) {
+          const particleX = this.x + (this.targetX - this.x) * this.progress;
+          const particleY = this.y + (this.targetY - this.y) * this.progress;
+          this.particles.push(new Particle(particleX, particleY, this.color));
+        }
+
+        // Update particles
+        this.particles = this.particles.filter(particle => {
+          particle.update();
+          return particle.life > 0;
+        });
+      }
+
+      draw() {
+        // Draw beam
+        ctx.save();
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = this.width;
+        ctx.globalAlpha = 0.6;
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.targetX, this.targetY);
+        ctx.stroke();
+        ctx.restore();
+
+        // Draw particles
+        this.particles.forEach(particle => particle.draw());
+      }
+    }
+
+    // Create beams
+    const beams = Array.from({ length: 8 }, () => new Beam());
+
+    // Animation loop
+    const animate = () => {
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Update and draw beams
+      beams.forEach(beam => {
+        beam.update();
+        beam.draw();
+      });
+
+      // Add floating geometric shapes
+      const time = Date.now() * 0.001;
+      for (let i = 0; i < 5; i++) {
+        const x = Math.sin(time + i) * 100 + canvas.width / 2;
+        const y = Math.cos(time + i * 0.5) * 100 + canvas.height / 2;
+        const size = Math.sin(time * 2 + i) * 20 + 40;
+        
+        ctx.save();
+        ctx.globalAlpha = 0.1;
+        ctx.strokeStyle = `hsl(${240 + i * 30}, 70%, 60%)`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        if (i % 2 === 0) {
+          ctx.rect(x - size/2, y - size/2, size, size);
+        } else {
+          ctx.arc(x, y, size/2, 0, Math.PI * 2);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
 
   return (
-    <>
-      <motion.div
-        key={beamKey}
-        ref={beamRef}
-        animate="animate"
-        initial={{
-          translateY: beamOptions.initialY || "-200px",
-          translateX: beamOptions.initialX || "0px",
-          rotate: beamOptions.rotate || 0,
+    <div className="fixed inset-0 pointer-events-none z-0">
+      <canvas
+        ref={canvasRef}
+        className="w-full h-full"
+        style={{
+          background: 'radial-gradient(ellipse at center, rgba(15, 23, 42, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%)'
         }}
-        variants={{
-          animate: {
-            translateY: beamOptions.translateY || "1800px",
-            translateX: beamOptions.translateX || "0px",
-            rotate: beamOptions.rotate || 0,
-          },
-        }}
-        transition={{
-          duration: beamOptions.duration || 8,
-          repeat: Infinity,
-          repeatType: "loop",
-          ease: "linear",
-          delay: beamOptions.delay || 0,
-          repeatDelay: beamOptions.repeatDelay || 0,
-        }}
-        className={cn(
-          "absolute left-0 top-20 m-auto h-14 w-px rounded-full bg-gradient-to-t from-indigo-500 via-purple-500 to-transparent",
-          beamOptions.className
-        )} />
-      <AnimatePresence>
-        {collision.detected && collision.coordinates && (
-          <Explosion
-            key={`${collision.coordinates.x}-${collision.coordinates.y}`}
-            className=""
-            style={{
-              left: `${collision.coordinates.x}px`,
-              top: `${collision.coordinates.y}px`,
-              transform: "translate(-50%, -50%)",
-            }} />
-        )}
-      </AnimatePresence>
-    </>
-  );
-});
-
-CollisionMechanism.displayName = "CollisionMechanism";
-
-const Explosion = ({
-  ...props
-}) => {
-  const spans = Array.from({ length: 20 }, (_, index) => ({
-    id: index,
-    initialX: 0,
-    initialY: 0,
-    directionX: Math.floor(Math.random() * 80 - 40),
-    directionY: Math.floor(Math.random() * -50 - 10),
-  }));
-
-  return (
-    <div {...props} className={cn("absolute z-50 h-2 w-2", props.className)}>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 1.5, ease: "easeOut" }}
-        className="absolute -inset-x-10 top-0 m-auto h-2 w-10 rounded-full bg-gradient-to-r from-transparent via-indigo-500 to-transparent blur-sm"></motion.div>
-      {spans.map((span) => (
-        <motion.span
-          key={span.id}
-          initial={{ x: span.initialX, y: span.initialY, opacity: 1 }}
-          animate={{
-            x: span.directionX,
-            y: span.directionY,
-            opacity: 0,
-          }}
-          transition={{ duration: Math.random() * 1.5 + 0.5, ease: "easeOut" }}
-          className="absolute h-1 w-1 rounded-full bg-gradient-to-b from-indigo-500 to-purple-500" />
-      ))}
+      />
+      
+      {/* Additional decorative elements */}
+      <div className="absolute inset-0">
+        {/* Floating orbs */}
+        <div className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-br from-purple-500/20 to-cyan-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-40 right-32 w-24 h-24 bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-full blur-2xl animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div className="absolute bottom-32 left-1/3 w-40 h-40 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+        
+        {/* Grid pattern overlay */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `
+              linear-gradient(rgba(168, 85, 247, 0.1) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(168, 85, 247, 0.1) 1px, transparent 1px)
+            `,
+            backgroundSize: '50px 50px'
+          }}></div>
+        </div>
+        
+        {/* Corner accents */}
+        <div className="absolute top-0 left-0 w-32 h-32 border-l-2 border-t-2 border-purple-500/30"></div>
+        <div className="absolute top-0 right-0 w-32 h-32 border-r-2 border-t-2 border-cyan-500/30"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 border-l-2 border-b-2 border-pink-500/30"></div>
+        <div className="absolute bottom-0 right-0 w-32 h-32 border-r-2 border-b-2 border-blue-500/30"></div>
+      </div>
     </div>
   );
 };
+
+export default BackgroundBeams;
