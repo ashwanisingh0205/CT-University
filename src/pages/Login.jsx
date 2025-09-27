@@ -20,11 +20,21 @@ export default function Login() {
 
   // Register dialog state
   const [showRegister, setShowRegister] = useState(false);
+  const [registerData, setRegisterData] = useState({
+    username: '',
+    password: '',
+    confirmPassword: '',
+    dob: '',
+    aadhaar: ''
+  });
+  const [registerError, setRegisterError] = useState('');
+  const [registerLoading, setRegisterLoading] = useState(false);
   const registerDialogRef = useRef(null);
 
  
   const handleLogin = async (e) => {
     console.log('ywas')
+    navigate('/home');
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -70,6 +80,39 @@ export default function Login() {
  
 
 
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setRegisterError('');
+    setRegisterLoading(true);
+
+    // Validation
+    if (registerData.password !== registerData.confirmPassword) {
+      setRegisterError('Passwords do not match');
+      setRegisterLoading(false);
+      return;
+    }
+
+    if (registerData.aadhaar.length !== 12) {
+      setRegisterError('Aadhaar card number must be 12 digits');
+      setRegisterLoading(false);
+      return;
+    }
+
+   
+      
+        setShowRegister(false);
+        alert('Registration successful! Please login with your credentials.');
+    setRegisterLoading(false);
+    
+  };
+
+  const handleRegisterInputChange = (field, value) => {
+    setRegisterData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Image Background */}
@@ -88,51 +131,51 @@ export default function Login() {
         {/* Logo and content */}
         <div className="relative z-10 flex flex-col justify-between h-full p-12">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-2xl animate-pulse">
-              <span className="text-white font-bold text-2xl">F</span>
+            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-2xl animate-pulse">
+              <span className="text-white font-bold text-2xl">A</span>
             </div>
-            <span className="text-white text-2xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-              FinGuard
+            <span className="text-white text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+              Arogya
             </span>
           </div>
           
           <div className="text-white space-y-6">
             <div className="space-y-4">
               <h1 className="text-5xl font-bold leading-tight">
-                <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                  Empowering Learning
+                <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+                  Empowering Health Care
                 </span>
                 <br />
-                <span className="text-white">with Smarter Management</span>
+                <span className="text-white">with AI Management</span>
               </h1>
-              <p className="text-purple-200 text-xl leading-relaxed">
-                Transform your educational journey with our comprehensive learning management system
+              <p className="text-emerald-200 text-xl leading-relaxed">
+              Empower your health journey with our comprehensive care management system
               </p>
             </div>
             
             {/* Feature highlights */}
             <div className="grid grid-cols-2 gap-4 mt-8">
-              <div className="flex items-center space-x-3 text-purple-200">
-                <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                  <span className="text-purple-400">📚</span>
+              <div className="flex items-center space-x-3 text-emerald-200">
+                <div className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+                  <span className="text-emerald-400">🏥</span>
                 </div>
-                <span className="text-sm font-medium">Interactive Learning</span>
+                <span className="text-sm font-medium">Health Management</span>
               </div>
-              <div className="flex items-center space-x-3 text-purple-200">
-                <div className="w-8 h-8 bg-cyan-500/20 rounded-lg flex items-center justify-center">
-                  <span className="text-cyan-400">📊</span>
+              <div className="flex items-center space-x-3 text-emerald-200">
+                <div className="w-8 h-8 bg-teal-500/20 rounded-lg flex items-center justify-center">
+                  <span className="text-teal-400">📊</span>
                 </div>
                 <span className="text-sm font-medium">Progress Tracking</span>
               </div>
-              <div className="flex items-center space-x-3 text-purple-200">
-                <div className="w-8 h-8 bg-pink-500/20 rounded-lg flex items-center justify-center">
-                  <span className="text-pink-400">🎯</span>
+              <div className="flex items-center space-x-3 text-emerald-200">
+                <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                  <span className="text-blue-400">🧬</span>
                 </div>
                 <span className="text-sm font-medium">Smart Analytics</span>
               </div>
-              <div className="flex items-center space-x-3 text-purple-200">
+              <div className="flex items-center space-x-3 text-emerald-200">
                 <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                  <span className="text-green-400">🚀</span>
+                  <span className="text-green-400">⚡</span>
                 </div>
                 <span className="text-sm font-medium">Fast Performance</span>
               </div>
@@ -142,20 +185,20 @@ export default function Login() {
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="w-full lg:w-1/2 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-8 relative overflow-hidden">
+      <div className="w-full lg:w-1/2 bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-900 flex items-center justify-center p-8 relative overflow-hidden">
         {/* Background Beams */}
         <BackgroundBeams />
 
         {/* Login Form Content */}
         <div className="w-full max-w-md relative z-10">
           <div className="text-center mb-8">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center shadow-2xl">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-2xl">
               <span className="text-3xl text-white">🔐</span>
             </div>
-            <h2 className="text-3xl font-bold text-white mb-2 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+            <h2 className="text-3xl font-bold text-white mb-2 bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
               Welcome Back
             </h2>
-            <p className="text-purple-200 text-lg">Sign in to your FinGuard account</p>
+            <p className="text-emerald-200 text-lg">Sign in to your Arogya account</p>
           </div>
 
           {/* Error Message */}
@@ -188,7 +231,7 @@ export default function Login() {
 
             {/* Password Field */}
             <div>
-              <label className="block text-sm font-medium text-purple-200 mb-2">
+              <label className="block text-sm font-medium text-emerald-200 mb-2">
                 Password
               </label>
               <div className="relative">
@@ -206,7 +249,7 @@ export default function Login() {
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-purple-300 hover:text-purple-200 transition-colors duration-200"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-emerald-300 hover:text-emerald-200 transition-colors duration-200"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -230,19 +273,19 @@ export default function Login() {
               size="lg"
               disabled={loading}
               loading={loading}
-              className="w-full h-14 text-lg font-semibold shadow-2xl hover:shadow-purple-500/25"
+              className="w-full h-14 text-lg font-semibold shadow-2xl hover:shadow-emerald-500/25"
             >
-              {loading ? 'Signing in...' : 'Sign in to FinGuard'}
+              {loading ? 'Signing in...' : 'Sign in to Arogya'}
             </Button>
 
             {/* Register Button */}
-            {/* <button
+            <button
               type="button"
-              className="w-full mt-2 bg-gray-700 hover:bg-gray-600 text-white py-3 px-4 rounded-lg font-medium transition-colors duration-200"
+              className="w-full mt-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-emerald-500/25"
               onClick={() => setShowRegister(true)}
             >
-              Register
-            </button> */}
+              Create New Account
+            </button>
           </form>
         </div>
       </div>
@@ -250,34 +293,42 @@ export default function Login() {
       {/* Register Dialog */}
       {showRegister && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div ref={registerDialogRef} className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl p-8 w-full max-w-md relative border border-purple-500/20">
+          <div ref={registerDialogRef} className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl p-8 w-full max-w-md relative border border-emerald-500/20">
             <button
-              className="absolute top-4 right-4 text-purple-300 hover:text-white text-2xl font-bold transition-colors duration-200"
+              className="absolute top-4 right-4 text-emerald-300 hover:text-white text-2xl font-bold transition-colors duration-200"
               onClick={() => setShowRegister(false)}
               aria-label="Close"
             >
               &times;
             </button>
             <div className="text-center mb-6">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
                 <span className="text-2xl text-white">📝</span>
               </div>
               <h2 className="text-2xl font-bold text-white mb-2">Create Account</h2>
-              <p className="text-purple-200">Join the FinGuard community</p>
+              <p className="text-emerald-200">Join the Arogya Healthcare community</p>
             </div>
-            <form className="space-y-4">
+
+            {/* Error Message */}
+            {registerError && (
+              <Alert 
+                type="error" 
+                title="Registration Failed" 
+                className="mb-6"
+              >
+                {registerError}
+              </Alert>
+            )}
+
+            <form onSubmit={handleRegister} className="space-y-4">
               <Input
-                label="Service Number"
+                label="Username"
                 type="text"
-                placeholder="Enter service number"
-                variant="glass"
-                size="md"
-                className="text-white"
-              />
-              <Input
-                label="Full Name"
-                type="text"
-                placeholder="Enter your full name"
+                value={registerData.username}
+                onChange={(e) => handleRegisterInputChange('username', e.target.value)}
+                placeholder="Enter username"
+                required
+                disabled={registerLoading}
                 variant="glass"
                 size="md"
                 className="text-white"
@@ -285,42 +336,60 @@ export default function Login() {
               <Input
                 label="Password"
                 type="password"
+                value={registerData.password}
+                onChange={(e) => handleRegisterInputChange('password', e.target.value)}
                 placeholder="Create a password"
+                required
+                disabled={registerLoading}
                 variant="glass"
                 size="md"
                 className="text-white"
               />
               <Input
-                label="Mobile Number"
-                type="tel"
-                placeholder="Enter mobile number"
+                label="Confirm Password"
+                type="password"
+                value={registerData.confirmPassword}
+                onChange={(e) => handleRegisterInputChange('confirmPassword', e.target.value)}
+                placeholder="Confirm your password"
+                required
+                disabled={registerLoading}
                 variant="glass"
                 size="md"
                 className="text-white"
               />
               <Input
-                label="Rank"
+                label="Date of Birth"
+                type="date"
+                value={registerData.dob}
+                onChange={(e) => handleRegisterInputChange('dob', e.target.value)}
+                required
+                disabled={registerLoading}
+                variant="glass"
+                size="md"
+                className="text-white"
+              />
+              <Input
+                label="Aadhaar Card Number"
                 type="text"
-                placeholder="Enter your rank"
+                value={registerData.aadhaar}
+                onChange={(e) => handleRegisterInputChange('aadhaar', e.target.value.replace(/\D/g, '').slice(0, 12))}
+                placeholder="Enter 12-digit Aadhaar number"
+                required
+                disabled={registerLoading}
                 variant="glass"
                 size="md"
                 className="text-white"
-              />
-              <Input
-                label="ID"
-                type="text"
-                placeholder="Enter your ID"
-                variant="glass"
-                size="md"
-                className="text-white"
+                maxLength="12"
               />
               <Button
                 type="submit"
                 variant="primary"
                 size="lg"
+                disabled={registerLoading}
+                loading={registerLoading}
                 className="w-full mt-6"
               >
-                Create Account
+                {registerLoading ? 'Creating Account...' : 'Create Account'}
               </Button>
             </form>
           </div>

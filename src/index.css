@@ -1,14 +1,16 @@
 @import "tailwindcss";
 
-/* Custom CSS Variables */
+/* Custom CSS Variables - Healthcare Theme */
 :root {
-  --primary-purple: #a855f7;
+  --primary-emerald: #10b981;
   --primary-cyan: #06b6d4;
-  --primary-pink: #ec4899;
+  --primary-teal: #14b8a6;
   --accent-blue: #3b82f6;
-  --accent-green: #10b981;
+  --accent-green: #22c55e;
   --accent-orange: #f59e0b;
   --accent-red: #ef4444;
+  --accent-purple: #8b5cf6;
+  --accent-pink: #ec4899;
 }
 
 /* Enhanced Animations */
@@ -78,6 +80,69 @@
   50% { filter: brightness(1.2); }
 }
 
+/* Healthcare Specific Animations */
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes medical-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes scan-line {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInFromTop {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideInFromBottom {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideInFromLeft {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInFromRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes zoomIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes wiggle {
+  0%, 7% { transform: rotateZ(0); }
+  15% { transform: rotateZ(-15deg); }
+  20% { transform: rotateZ(10deg); }
+  25% { transform: rotateZ(-10deg); }
+  30% { transform: rotateZ(6deg); }
+  35% { transform: rotateZ(-4deg); }
+  40%, 100% { transform: rotateZ(0); }
+}
+
 /* Custom Animation Classes */
 .animate-float {
   animation: float 3s ease-in-out infinite;
@@ -123,6 +188,51 @@
   animation: glow 2s ease-in-out infinite;
 }
 
+/* Healthcare Animation Classes */
+.animate-heartbeat {
+  animation: heartbeat 2s ease-in-out infinite;
+}
+
+.animate-medical-pulse {
+  animation: medical-pulse 2s ease-in-out infinite;
+}
+
+.animate-scan-line {
+  animation: scan-line 2s linear infinite;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+.animate-slideInFromTop {
+  animation: slideInFromTop 0.8s ease-out;
+}
+
+.animate-slideInFromBottom {
+  animation: slideInFromBottom 0.8s ease-out;
+}
+
+.animate-slideInFromLeft {
+  animation: slideInFromLeft 0.8s ease-out;
+}
+
+.animate-slideInFromRight {
+  animation: slideInFromRight 0.8s ease-out;
+}
+
+.animate-zoomIn {
+  animation: zoomIn 0.6s ease-out;
+}
+
+.animate-bounceIn {
+  animation: bounceIn 0.8s ease-out;
+}
+
+.animate-wiggle {
+  animation: wiggle 1s ease-in-out;
+}
+
 /* Enhanced Hover Effects */
 .hover-lift {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -154,9 +264,9 @@
   border: 1px solid rgba(168, 85, 247, 0.3);
 }
 
-/* Gradient Text Effects */
+/* Gradient Text Effects - Healthcare Theme */
 .gradient-text {
-  background: linear-gradient(135deg, var(--primary-purple), var(--primary-cyan), var(--primary-pink));
+  background: linear-gradient(135deg, var(--primary-emerald), var(--primary-cyan), var(--primary-teal));
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -164,8 +274,8 @@
   animation: gradientShift 3s ease infinite;
 }
 
-.gradient-text-purple {
-  background: linear-gradient(135deg, #a855f7, #8b5cf6, #7c3aed);
+.gradient-text-emerald {
+  background: linear-gradient(135deg, #10b981, #059669, #047857);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -178,9 +288,25 @@
   background-clip: text;
 }
 
-/* Enhanced Button Styles */
+.gradient-text-teal {
+  background: linear-gradient(135deg, #14b8a6, #0d9488, #0f766e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-healthcare {
+  background: linear-gradient(135deg, var(--primary-emerald), var(--primary-cyan), var(--accent-blue));
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 4s ease infinite;
+}
+
+/* Enhanced Button Styles - Healthcare Theme */
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary-purple), var(--primary-cyan));
+  background: linear-gradient(135deg, var(--primary-emerald), var(--primary-cyan));
   border: none;
   color: white;
   padding: 12px 24px;
@@ -193,7 +319,7 @@
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(168, 85, 247, 0.4);
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
 }
 
 .btn-primary::before {
@@ -211,26 +337,75 @@
   left: 100%;
 }
 
-/* Card Styles */
+.btn-emerald {
+  background: linear-gradient(135deg, var(--primary-emerald), var(--primary-teal));
+  border: none;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-emerald:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+}
+
+.btn-cyan {
+  background: linear-gradient(135deg, var(--primary-cyan), var(--accent-blue));
+  border: none;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-cyan:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(6, 182, 212, 0.4);
+}
+
+/* Card Styles - Healthcare Theme */
 .card-modern {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-radius: 20px;
-  border: 1px solid rgba(168, 85, 247, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
 .card-modern:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 60px rgba(168, 85, 247, 0.2);
-  border-color: rgba(168, 85, 247, 0.3);
+  box-shadow: 0 20px 60px rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.3);
 }
 
-/* Input Styles */
+.card-healthcare {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  border: 1px solid rgba(6, 182, 212, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card-healthcare:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 60px rgba(6, 182, 212, 0.2);
+  border-color: rgba(6, 182, 212, 0.3);
+}
+
+/* Input Styles - Healthcare Theme */
 .input-modern {
   background: rgba(255, 255, 255, 0.9);
-  border: 2px solid rgba(168, 85, 247, 0.2);
+  border: 2px solid rgba(16, 185, 129, 0.2);
   border-radius: 12px;
   padding: 12px 16px;
   transition: all 0.3s ease;
@@ -238,24 +413,55 @@
 
 .input-modern:focus {
   outline: none;
-  border-color: var(--primary-purple);
-  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.1);
+  border-color: var(--primary-emerald);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
   transform: scale(1.02);
 }
 
-/* Loading Spinner */
+.input-healthcare {
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(6, 182, 212, 0.2);
+  border-radius: 12px;
+  padding: 12px 16px;
+  transition: all 0.3s ease;
+}
+
+.input-healthcare:focus {
+  outline: none;
+  border-color: var(--primary-cyan);
+  box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.1);
+  transform: scale(1.02);
+}
+
+/* Loading Spinner - Healthcare Theme */
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid rgba(168, 85, 247, 0.1);
-  border-left-color: var(--primary-purple);
+  border: 4px solid rgba(16, 185, 129, 0.1);
+  border-left-color: var(--primary-emerald);
   border-radius: 50%;
   animation: rotate 1s linear infinite;
 }
 
-/* Progress Bar */
+.spinner-cyan {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(6, 182, 212, 0.1);
+  border-left-color: var(--primary-cyan);
+  border-radius: 50%;
+  animation: rotate 1s linear infinite;
+}
+
+/* Progress Bar - Healthcare Theme */
 .progress-bar {
-  background: linear-gradient(90deg, var(--primary-purple), var(--primary-cyan));
+  background: linear-gradient(90deg, var(--primary-emerald), var(--primary-cyan));
+  height: 8px;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.progress-bar-healthcare {
+  background: linear-gradient(90deg, var(--primary-emerald), var(--primary-teal), var(--primary-cyan));
   height: 8px;
   border-radius: 4px;
   transition: width 0.5s ease;
@@ -303,33 +509,33 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Selection Styles */
+/* Selection Styles - Healthcare Theme */
 ::selection {
-  background: rgba(168, 85, 247, 0.3);
+  background: rgba(16, 185, 129, 0.3);
   color: white;
 }
 
-/* Focus Styles */
+/* Focus Styles - Healthcare Theme */
 *:focus {
-  outline: 2px solid var(--primary-purple);
+  outline: 2px solid var(--primary-emerald);
   outline-offset: 2px;
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar - Healthcare Theme */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(168, 85, 247, 0.1);
+  background: rgba(16, 185, 129, 0.1);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, var(--primary-purple), var(--primary-cyan));
+  background: linear-gradient(135deg, var(--primary-emerald), var(--primary-cyan));
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #9333ea, #0891b2);
+  background: linear-gradient(135deg, #059669, #0891b2);
 }
