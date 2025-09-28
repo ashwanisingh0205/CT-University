@@ -367,82 +367,85 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-cyan-50 to-teal-50 p-6">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center mb-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center mr-4 shadow-lg">
+      <div className="mb-4 sm:mb-6 md:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center mb-4 gap-3 sm:gap-4">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
             <div className="relative">
               {/* Medical Cross Icon */}
-              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
                 <div className="relative">
                   {/* Vertical line */}
-                  <div className="w-1 h-6 bg-white rounded-full"></div>
+                  <div className="w-0.5 sm:w-1 h-4 sm:h-6 bg-white rounded-full"></div>
                   {/* Horizontal line */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-1 bg-white rounded-full"></div>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 sm:w-6 h-0.5 sm:h-1 bg-white rounded-full"></div>
                 </div>
               </div>
             </div>
           </div>
-        <div>
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">
+          <div className="flex-1">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-1 sm:mb-2">
               Hospital Management Dashboard
             </h1>
-            <p className="text-gray-600 text-lg">
+            <p className="text-gray-600 text-sm sm:text-base md:text-lg">
               Comprehensive healthcare management system
             </p>
+          </div>
         </div>
-        </div>
-        </div>
+      </div>
 
       {/* Navigation Tabs */}
-      <div className="mb-8">
-        <div className="flex space-x-4 bg-white rounded-xl p-2 shadow-lg">
+      <div className="mb-4 sm:mb-6 md:mb-8">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 bg-white rounded-xl p-2 shadow-lg mobile-tabs">
           <button
             onClick={() => {
               setActiveView('hospitals');
               setSelectedHospital(null); // Clear selected hospital on tab change
             }}
-            className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
+            className={`px-3 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold transition-all duration-300 text-sm sm:text-base mobile-touch-target ${
               activeView === 'hospitals' || activeView === 'hospital-details'
                 ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg transform scale-105'
                 : 'text-gray-600 hover:text-emerald-600 hover:bg-emerald-50'
             }`}
           >
-            Hospitals
+            <span className="hidden sm:inline">Hospitals</span>
+            <span className="sm:hidden">🏥 Hospitals</span>
           </button>
           <button
             onClick={() => setActiveView('patient-search')}
-            className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
+            className={`px-3 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold transition-all duration-300 text-sm sm:text-base mobile-touch-target ${
               activeView === 'patient-search'
                 ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg transform scale-105'
                 : 'text-gray-600 hover:text-emerald-600 hover:bg-emerald-50'
             }`}
           >
-            Patient Search
+            <span className="hidden sm:inline">Patient Search</span>
+            <span className="sm:hidden">🔍 Search</span>
           </button>
           <button
             onClick={() => setActiveView('user-management')}
-            className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${
+            className={`px-3 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold transition-all duration-300 text-sm sm:text-base mobile-touch-target ${
               activeView === 'user-management'
                 ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg transform scale-105'
                 : 'text-gray-600 hover:text-emerald-600 hover:bg-emerald-50'
             }`}
           >
-            User Management
+            <span className="hidden sm:inline">User Management</span>
+            <span className="sm:hidden">👥 Users</span>
           </button>
-      </div>
         </div>
+      </div>
 
       {/* Hospital Cards View */}
       {activeView === 'hospitals' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           {hospitals.map((hospital, index) => (
             <div
               key={hospital.id}
-              className="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 cursor-pointer overflow-hidden"
+              className="bg-white rounded-xl sm:rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 cursor-pointer overflow-hidden mobile-card"
               onClick={() => handleHospitalSelect(hospital)}
             >
               {/* Hospital Image */}
-              <div className="h-40 bg-gradient-to-br from-emerald-400 to-cyan-400 relative overflow-hidden">
+              <div className="h-32 sm:h-40 bg-gradient-to-br from-emerald-400 to-cyan-400 relative overflow-hidden">
                 <img
                   src={hospital.image}
                   alt={hospital.name}
@@ -485,12 +488,12 @@ export default function Dashboard() {
               </div>
 
               {/* Hospital Info */}
-              <div className="p-4">
-                <h3 className="text-xl font-bold text-gray-800 mb-2">{hospital.name}</h3>
-                <div className="flex items-center text-gray-600 mb-4">
-                  <MapPinIcon className="w-5 h-5 mr-2 text-emerald-500" />
-                  <span>{hospital.location}</span>
-        </div>
+              <div className="p-3 sm:p-4">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2 line-clamp-2">{hospital.name}</h3>
+                <div className="flex items-center text-gray-600 mb-3 sm:mb-4">
+                  <MapPinIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2 text-emerald-500 flex-shrink-0" />
+                  <span className="text-sm sm:text-base truncate">{hospital.location}</span>
+                </div>
 
                 {/* Bed Availability */}
                 <div className="mb-4">
@@ -556,6 +559,153 @@ export default function Dashboard() {
             ← Back to Hospitals
           </button>
 
+          {/* Management Cards */}
+          <div className="space-y-6 mb-8">
+            {/* First Row - 4 Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* IPD Card */}
+              <button 
+                onClick={() => {
+                  setActiveView('ipd-management');
+                }}
+                className="w-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer text-left"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <div className="w-6 h-6 bg-white rounded flex items-center justify-center">
+                      <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold">45</div>
+                    <div className="text-sm opacity-90">Total Patients</div>
+                  </div>
+                </div>
+                <h3 className="text-lg font-bold mb-2">IPD Management</h3>
+                <p className="text-sm opacity-90">Inpatient Department</p>
+              </button>
+
+              {/* OPD Card */}
+              <button 
+                onClick={() => {
+                  setActiveView('opd-management');
+                }}
+                className="w-full bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer text-left"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <div className="w-6 h-6 bg-white rounded flex items-center justify-center">
+                      <div className="w-3 h-3 bg-green-500 rounded"></div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold">128</div>
+                    <div className="text-sm opacity-90">Today's Visits</div>
+                  </div>
+                </div>
+                <h3 className="text-lg font-bold mb-2">OPD Management</h3>
+                <p className="text-sm opacity-90">Outpatient Department</p>
+              </button>
+
+              {/* HR Management Card */}
+              <button 
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('navigateToSection', { 
+                    detail: { section: 'hr-management' } 
+                  }));
+                }}
+                className="w-full bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer text-left"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <div className="w-6 h-6 bg-white rounded flex items-center justify-center">
+                      <div className="w-3 h-3 bg-purple-500 rounded"></div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold">32</div>
+                    <div className="text-sm opacity-90">Total Staff</div>
+                  </div>
+                </div>
+                <h3 className="text-lg font-bold mb-2">HR Management</h3>
+                <p className="text-sm opacity-90">Human Resources</p>
+              </button>
+
+              {/* TPA Card */}
+              <button 
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('navigateToSection', { 
+                    detail: { section: 'tpa-management' } 
+                  }));
+                }}
+                className="w-full bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer text-left"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <div className="w-6 h-6 bg-white rounded flex items-center justify-center">
+                      <div className="w-3 h-3 bg-orange-500 rounded"></div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold">15</div>
+                    <div className="text-sm opacity-90">Active Sponsors</div>
+                  </div>
+                </div>
+                <h3 className="text-lg font-bold mb-2">TPA Management</h3>
+                <p className="text-sm opacity-90">Third Party Administrator</p>
+              </button>
+            </div>
+
+            {/* Second Row - 2 Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* ABDM Card */}
+              <button 
+                className="w-full bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer text-left relative overflow-hidden"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <div className="w-6 h-6 bg-white rounded flex items-center justify-center">
+                      <div className="w-3 h-3 bg-indigo-500 rounded"></div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold">ABDM</div>
+                    <div className="text-sm opacity-90">Health Records</div>
+                  </div>
+                </div>
+                <h3 className="text-lg font-bold mb-2">ABDM Integration</h3>
+                <p className="text-sm opacity-90">Ayushman Bharat Digital Mission</p>
+                <div className="absolute bottom-2 right-2">
+                  <span className="text-xs bg-white/20 px-2 py-1 rounded-full">Coming Soon</span>
+                </div>
+              </button>
+
+              {/* Claim Management Card */}
+              <button 
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('navigateToSection', { 
+                    detail: { section: 'claim-management' } 
+                  }));
+                }}
+                className="w-full bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer text-left"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <div className="w-6 h-6 bg-white rounded flex items-center justify-center">
+                      <div className="w-3 h-3 bg-teal-500 rounded"></div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold">247</div>
+                    <div className="text-sm opacity-90">Total Claims</div>
+                  </div>
+                </div>
+                <h3 className="text-lg font-bold mb-2">Claim Management</h3>
+                <p className="text-sm opacity-90">Insurance Claims Processing</p>
+              </button>
+            </div>
+          </div>
+
           {/* Hospital Header */}
           <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
             <div className="flex items-start justify-between">
@@ -585,12 +735,51 @@ export default function Dashboard() {
                   {selectedHospital.availableBeds}/{selectedHospital.totalBeds}
                 </div>
                 <div className="text-sm text-gray-600 mb-4">Available Beds</div>
-                <button
-                  onClick={() => setShowBedDetails(true)}
-                  className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-sm font-medium rounded-lg hover:from-emerald-600 hover:to-cyan-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
-                >
-                  View Beds
-                </button>
+                <div className="space-y-3">
+                  <button
+                    onClick={() => setShowBedDetails(true)}
+                    className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-sm font-medium rounded-lg hover:from-emerald-600 hover:to-cyan-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  >
+                    View Beds
+                  </button>
+                  
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => {
+                        // Set hospital context and registration type
+                        localStorage.setItem('selectedHospital', JSON.stringify(selectedHospital));
+                        localStorage.setItem('registrationType', 'OPD');
+                        // Dispatch custom event for navigation
+                        window.dispatchEvent(new CustomEvent('navigateToSection', { 
+                          detail: { section: 'patient-registration' } 
+                        }));
+                      }}
+                      className="px-3 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-medium rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center"
+                    >
+                      <div className="w-3 h-3 mr-1 bg-white/20 rounded flex items-center justify-center">
+                        <div className="w-1 h-1 bg-white rounded-full"></div>
+                      </div>
+                      OPD
+                    </button>
+                    <button
+                      onClick={() => {
+                        // Set hospital context and registration type
+                        localStorage.setItem('selectedHospital', JSON.stringify(selectedHospital));
+                        localStorage.setItem('registrationType', 'IPD');
+                        // Dispatch custom event for navigation
+                        window.dispatchEvent(new CustomEvent('navigateToSection', { 
+                          detail: { section: 'patient-registration' } 
+                        }));
+                      }}
+                      className="px-3 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white text-xs font-medium rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center"
+                    >
+                      <div className="w-3 h-3 mr-1 bg-white/20 rounded flex items-center justify-center">
+                        <div className="w-1 h-1 bg-white rounded-full"></div>
+                      </div>
+                      IPD
+                    </button>
+                  </div>
+                </div>
                       </div>
                     </div>
         </div>
@@ -653,6 +842,266 @@ export default function Dashboard() {
               </div>
               Add New Patient
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* IPD Management View */}
+      {activeView === 'ipd-management' && selectedHospital && (
+        <div>
+          {/* Back Button */}
+          <button
+            onClick={() => setActiveView('hospital-details')}
+            className="mb-6 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200 flex items-center"
+          >
+            ← Back to Hospital Details
+          </button>
+
+          {/* IPD Header */}
+          <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-800 mb-2">IPD Management</h2>
+                <p className="text-gray-600 text-lg">{selectedHospital.name}</p>
+              </div>
+              <div className="text-right">
+                <div className="text-3xl font-bold text-blue-600">45</div>
+                <div className="text-sm text-gray-600">Total Inpatients</div>
+              </div>
+            </div>
+          </div>
+
+          {/* IPD Statistics */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 text-center border border-blue-200">
+              <div className="text-3xl font-bold text-blue-700 mb-2">45</div>
+              <div className="text-sm font-medium text-blue-600">Total Patients</div>
+            </div>
+            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 text-center border border-green-200">
+              <div className="text-3xl font-bold text-green-700 mb-2">12</div>
+              <div className="text-sm font-medium text-green-600">Discharged Today</div>
+            </div>
+            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-6 text-center border border-yellow-200">
+              <div className="text-3xl font-bold text-yellow-700 mb-2">8</div>
+              <div className="text-sm font-medium text-yellow-600">New Admissions</div>
+            </div>
+            <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-2xl p-6 text-center border border-red-200">
+              <div className="text-3xl font-bold text-red-700 mb-2">3</div>
+              <div className="text-sm font-medium text-red-600">Critical Cases</div>
+            </div>
+          </div>
+
+          {/* Inpatient Data Table */}
+          <div className="bg-white rounded-2xl shadow-xl p-8">
+            <h3 className="text-2xl font-bold text-gray-800 mb-6">Inpatient Records</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b-2 border-gray-200">
+                    <th className="text-left py-4 px-6 font-bold text-gray-700">Patient ID</th>
+                    <th className="text-left py-4 px-6 font-bold text-gray-700">Name</th>
+                    <th className="text-left py-4 px-6 font-bold text-gray-700">Age</th>
+                    <th className="text-left py-4 px-6 font-bold text-gray-700">Ward</th>
+                    <th className="text-left py-4 px-6 font-bold text-gray-700">Bed No.</th>
+                    <th className="text-left py-4 px-6 font-bold text-gray-700">Admission Date</th>
+                    <th className="text-left py-4 px-6 font-bold text-gray-700">Diagnosis</th>
+                    <th className="text-left py-4 px-6 font-bold text-gray-700">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  <tr className="hover:bg-gray-50">
+                    <td className="py-4 px-6 font-mono text-gray-800">IPD-001</td>
+                    <td className="py-4 px-6 font-semibold text-gray-800">Rajesh Kumar</td>
+                    <td className="py-4 px-6 text-gray-800">45</td>
+                    <td className="py-4 px-6 text-gray-800">ICU-1</td>
+                    <td className="py-4 px-6 text-gray-800">B-101</td>
+                    <td className="py-4 px-6 text-gray-800">2024-01-15</td>
+                    <td className="py-4 px-6 text-gray-800">Cardiac Arrest</td>
+                    <td className="py-4 px-6">
+                      <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">Critical</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-gray-50">
+                    <td className="py-4 px-6 font-mono text-gray-800">IPD-002</td>
+                    <td className="py-4 px-6 font-semibold text-gray-800">Priya Sharma</td>
+                    <td className="py-4 px-6 text-gray-800">32</td>
+                    <td className="py-4 px-6 text-gray-800">General-2</td>
+                    <td className="py-4 px-6 text-gray-800">G-205</td>
+                    <td className="py-4 px-6 text-gray-800">2024-01-14</td>
+                    <td className="py-4 px-6 text-gray-800">Pneumonia</td>
+                    <td className="py-4 px-6">
+                      <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">Stable</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-gray-50">
+                    <td className="py-4 px-6 font-mono text-gray-800">IPD-003</td>
+                    <td className="py-4 px-6 font-semibold text-gray-800">Amit Singh</td>
+                    <td className="py-4 px-6 text-gray-800">28</td>
+                    <td className="py-4 px-6 text-gray-800">Surgery-1</td>
+                    <td className="py-4 px-6 text-gray-800">S-301</td>
+                    <td className="py-4 px-6 text-gray-800">2024-01-13</td>
+                    <td className="py-4 px-6 text-gray-800">Appendicitis</td>
+                    <td className="py-4 px-6">
+                      <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Recovering</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-gray-50">
+                    <td className="py-4 px-6 font-mono text-gray-800">IPD-004</td>
+                    <td className="py-4 px-6 font-semibold text-gray-800">Sunita Devi</td>
+                    <td className="py-4 px-6 text-gray-800">55</td>
+                    <td className="py-4 px-6 text-gray-800">Cardiology</td>
+                    <td className="py-4 px-6 text-gray-800">C-102</td>
+                    <td className="py-4 px-6 text-gray-800">2024-01-12</td>
+                    <td className="py-4 px-6 text-gray-800">Heart Attack</td>
+                    <td className="py-4 px-6">
+                      <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Under Observation</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-gray-50">
+                    <td className="py-4 px-6 font-mono text-gray-800">IPD-005</td>
+                    <td className="py-4 px-6 font-semibold text-gray-800">Vikram Patel</td>
+                    <td className="py-4 px-6 text-gray-800">38</td>
+                    <td className="py-4 px-6 text-gray-800">Orthopedics</td>
+                    <td className="py-4 px-6 text-gray-800">O-201</td>
+                    <td className="py-4 px-6 text-gray-800">2024-01-11</td>
+                    <td className="py-4 px-6 text-gray-800">Fracture</td>
+                    <td className="py-4 px-6">
+                      <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Recovering</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* OPD Management View */}
+      {activeView === 'opd-management' && selectedHospital && (
+        <div>
+          {/* Back Button */}
+          <button
+            onClick={() => setActiveView('hospital-details')}
+            className="mb-6 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200 flex items-center"
+          >
+            ← Back to Hospital Details
+          </button>
+
+          {/* OPD Header */}
+          <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-800 mb-2">OPD Management</h2>
+                <p className="text-gray-600 text-lg">{selectedHospital.name}</p>
+              </div>
+              <div className="text-right">
+                <div className="text-3xl font-bold text-green-600">128</div>
+                <div className="text-sm text-gray-600">Today's Visits</div>
+              </div>
+            </div>
+          </div>
+
+          {/* OPD Statistics */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 text-center border border-green-200">
+              <div className="text-3xl font-bold text-green-700 mb-2">128</div>
+              <div className="text-sm font-medium text-green-600">Total Visits</div>
+            </div>
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 text-center border border-blue-200">
+              <div className="text-3xl font-bold text-blue-700 mb-2">45</div>
+              <div className="text-sm font-medium text-blue-600">New Patients</div>
+            </div>
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6 text-center border border-purple-200">
+              <div className="text-3xl font-bold text-purple-700 mb-2">83</div>
+              <div className="text-sm font-medium text-purple-600">Follow-ups</div>
+            </div>
+            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-6 text-center border border-orange-200">
+              <div className="text-3xl font-bold text-orange-700 mb-2">12</div>
+              <div className="text-sm font-medium text-orange-600">Emergency Cases</div>
+            </div>
+          </div>
+
+          {/* Outpatient Data Table */}
+          <div className="bg-white rounded-2xl shadow-xl p-8">
+            <h3 className="text-2xl font-bold text-gray-800 mb-6">Outpatient Records</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b-2 border-gray-200">
+                    <th className="text-left py-4 px-6 font-bold text-gray-700">Patient ID</th>
+                    <th className="text-left py-4 px-6 font-bold text-gray-700">Name</th>
+                    <th className="text-left py-4 px-6 font-bold text-gray-700">Age</th>
+                    <th className="text-left py-4 px-6 font-bold text-gray-700">Department</th>
+                    <th className="text-left py-4 px-6 font-bold text-gray-700">Doctor</th>
+                    <th className="text-left py-4 px-6 font-bold text-gray-700">Visit Time</th>
+                    <th className="text-left py-4 px-6 font-bold text-gray-700">Complaint</th>
+                    <th className="text-left py-4 px-6 font-bold text-gray-700">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  <tr className="hover:bg-gray-50">
+                    <td className="py-4 px-6 font-mono text-gray-800">OPD-001</td>
+                    <td className="py-4 px-6 font-semibold text-gray-800">Anjali Gupta</td>
+                    <td className="py-4 px-6 text-gray-800">35</td>
+                    <td className="py-4 px-6 text-gray-800">Cardiology</td>
+                    <td className="py-4 px-6 text-gray-800">Dr. Rajesh Verma</td>
+                    <td className="py-4 px-6 text-gray-800">09:30 AM</td>
+                    <td className="py-4 px-6 text-gray-800">Chest Pain</td>
+                    <td className="py-4 px-6">
+                      <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Completed</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-gray-50">
+                    <td className="py-4 px-6 font-mono text-gray-800">OPD-002</td>
+                    <td className="py-4 px-6 font-semibold text-gray-800">Suresh Kumar</td>
+                    <td className="py-4 px-6 text-gray-800">42</td>
+                    <td className="py-4 px-6 text-gray-800">Orthopedics</td>
+                    <td className="py-4 px-6 text-gray-800">Dr. Meera Singh</td>
+                    <td className="py-4 px-6 text-gray-800">10:15 AM</td>
+                    <td className="py-4 px-6 text-gray-800">Knee Pain</td>
+                    <td className="py-4 px-6">
+                      <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">In Progress</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-gray-50">
+                    <td className="py-4 px-6 font-mono text-gray-800">OPD-003</td>
+                    <td className="py-4 px-6 font-semibold text-gray-800">Kavita Joshi</td>
+                    <td className="py-4 px-6 text-gray-800">28</td>
+                    <td className="py-4 px-6 text-gray-800">Gynecology</td>
+                    <td className="py-4 px-6 text-gray-800">Dr. Sunita Agarwal</td>
+                    <td className="py-4 px-6 text-gray-800">11:00 AM</td>
+                    <td className="py-4 px-6 text-gray-800">Regular Checkup</td>
+                    <td className="py-4 px-6">
+                      <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Waiting</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-gray-50">
+                    <td className="py-4 px-6 font-mono text-gray-800">OPD-004</td>
+                    <td className="py-4 px-6 font-semibold text-gray-800">Ramesh Yadav</td>
+                    <td className="py-4 px-6 text-gray-800">50</td>
+                    <td className="py-4 px-6 text-gray-800">Neurology</td>
+                    <td className="py-4 px-6 text-gray-800">Dr. Amit Khanna</td>
+                    <td className="py-4 px-6 text-gray-800">11:45 AM</td>
+                    <td className="py-4 px-6 text-gray-800">Headache</td>
+                    <td className="py-4 px-6">
+                      <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Completed</span>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-gray-50">
+                    <td className="py-4 px-6 font-mono text-gray-800">OPD-005</td>
+                    <td className="py-4 px-6 font-semibold text-gray-800">Deepika Sharma</td>
+                    <td className="py-4 px-6 text-gray-800">25</td>
+                    <td className="py-4 px-6 text-gray-800">Dermatology</td>
+                    <td className="py-4 px-6 text-gray-800">Dr. Priya Malhotra</td>
+                    <td className="py-4 px-6 text-gray-800">12:30 PM</td>
+                    <td className="py-4 px-6 text-gray-800">Skin Rash</td>
+                    <td className="py-4 px-6">
+                      <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">In Progress</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}

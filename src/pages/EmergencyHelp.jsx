@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 const EmergencyHelp = () => {
   const [activeTab, setActiveTab] = useState('ambulance');
@@ -15,8 +15,10 @@ const EmergencyHelp = () => {
   const [isCalling, setIsCalling] = useState(false);
   const [showCallSuccess, setShowCallSuccess] = useState(false);
   const [callDetails, setCallDetails] = useState(null);
+  const [activeCall, setActiveCall] = useState(null);
+  const [callHistory, setCallHistory] = useState([]);
   
-  const [ambulanceServices, setAmbulanceServices] = useState([
+  const [ambulanceServices] = useState([
     {
       id: 'AMB001',
       name: 'Arogya Emergency Ambulance',
@@ -63,7 +65,7 @@ const EmergencyHelp = () => {
     }
   ]);
 
-  const [emergencyContacts, setEmergencyContacts] = useState([
+  const [emergencyContacts] = useState([
     {
       id: 'EC001',
       name: 'Emergency Department',
@@ -111,7 +113,7 @@ const EmergencyHelp = () => {
     }
   ]);
 
-  const [recentCalls, setRecentCalls] = useState([
+  const [recentCalls] = useState([
     {
       id: 'CALL001',
       patientId: 'P001',
@@ -151,6 +153,104 @@ const EmergencyHelp = () => {
   ];
 
   const priorityLevels = ['Critical', 'High', 'Medium', 'Low'];
+
+  // Call functionality
+  const initiateCall = async (phoneNumber, contactName, contactType = 'ambulance') => {
+    if (activeCall) {
+      alert('Another call is already in progress. Please end the current call first.');
+      return;
+    }
+
+    setIsCalling(true);
+    
+    const callId = `CALL${Date.now().toString().slice(-6)}`;
+    const newCall = {
+      id: callId,
+      phoneNumber,
+      contactName,
+      contactType,
+      startTime: new Date(),
+      status: 'ringing',
+      duration: 0
+    };
+
+    setActiveCall(newCall);
+    
+    // Simulate call ringing
+    setTimeout(() => {
+      // Simulate call being answered (80% success rate)
+      const isAnswered = Math.random() > 0.2;
+      
+      if (isAnswered) {
+        setActiveCall(prev => ({
+          ...prev,
+          status: 'connected',
+          connectTime: new Date()
+        }));
+        
+        // Start call duration timer
+        const callTimer = setInterval(() => {
+          setActiveCall(prev => {
+            if (prev && prev.status === 'connected') {
+              const duration = Math.floor((new Date() - prev.connectTime) / 1000);
+              return { ...prev, duration };
+            }
+            return prev;
+          });
+        }, 1000);
+
+        // Store timer reference for cleanup
+        newCall.timer = callTimer;
+      } else {
+        // Call not answered
+        setActiveCall(prev => ({
+          ...prev,
+          status: 'missed',
+          endTime: new Date()
+        }));
+        
+        setTimeout(() => {
+          endCall();
+        }, 2000);
+      }
+      
+      setIsCalling(false);
+    }, 2000);
+
+    // Add to call history
+    setCallHistory(prev => [newCall, ...prev.slice(0, 9)]); // Keep last 10 calls
+  };
+
+  const endCall = () => {
+    if (!activeCall) return;
+
+    const endTime = new Date();
+    const duration = activeCall.connectTime ? 
+      Math.floor((endTime - activeCall.connectTime) / 1000) : 0;
+
+    // Clear timer if exists
+    if (activeCall.timer) {
+      clearInterval(activeCall.timer);
+    }
+
+    // Update call history with final details
+    setCallHistory(prev => 
+      prev.map(call => 
+        call.id === activeCall.id 
+          ? { ...call, status: 'ended', endTime, duration }
+          : call
+      )
+    );
+
+    setActiveCall(null);
+    setIsCalling(false);
+  };
+
+  const formatDuration = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const handleEmergencyCall = async (e) => {
     e.preventDefault();
@@ -204,15 +304,6 @@ const EmergencyHelp = () => {
     }
   };
 
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case 'Critical': return 'bg-red-500';
-      case 'High': return 'bg-orange-500';
-      case 'Medium': return 'bg-yellow-500';
-      case 'Low': return 'bg-green-500';
-      default: return 'bg-gray-500';
-    }
-  };
 
   const TabButton = ({ id, label, icon }) => (
     <button
@@ -229,18 +320,18 @@ const EmergencyHelp = () => {
   );
 
   const StatCard = ({ title, value, icon, color, change }) => (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-emerald-200/50 hover:shadow-emerald-500/20 transition-all duration-300 hover:scale-105">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-emerald-600 text-sm font-medium">{title}</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
+    <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 shadow-lg border border-emerald-200/50 hover:shadow-emerald-500/20 transition-all duration-300 hover:scale-105 stat-card">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between">
+        <div className="flex-1">
+          <p className="text-emerald-600 text-xs sm:text-sm font-medium">{title}</p>
+          <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{value}</p>
           {change && (
-            <p className={`text-sm mt-1 ${change > 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <p className={`text-xs sm:text-sm mt-1 ${change > 0 ? 'text-green-600' : 'text-red-600'}`}>
               {change > 0 ? '+' : ''}{change} today
             </p>
           )}
         </div>
-        <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center text-3xl`}>
+        <div className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center text-xl sm:text-2xl md:text-3xl mt-2 sm:mt-0`}>
           {icon}
         </div>
       </div>
@@ -325,8 +416,49 @@ const EmergencyHelp = () => {
         <p className="text-gray-600 text-lg">24/7 emergency response and ambulance coordination</p>
       </div>
 
+      {/* Active Call Status */}
+      {activeCall && (
+        <div className={`bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl p-6 shadow-lg text-white animate-fadeIn ${
+          activeCall.status === 'ringing' ? 'animate-call-pulse' : ''
+        }`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className={`w-16 h-16 bg-white/20 rounded-full flex items-center justify-center ${
+                activeCall.status === 'ringing' ? 'animate-call-ring' : 
+                activeCall.status === 'connected' ? 'animate-call-connected' : ''
+              }`}>
+                <span className="text-3xl">📞</span>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold">Active Call</h3>
+                <p className="text-lg">{activeCall.contactName}</p>
+                <p className="text-sm opacity-90">{activeCall.phoneNumber}</p>
+              </div>
+            </div>
+            
+            <div className="text-right">
+              <div className="text-2xl font-bold">
+                {activeCall.status === 'connected' ? formatDuration(activeCall.duration) : 'Ringing...'}
+              </div>
+              <div className="text-sm opacity-90">
+                {activeCall.status === 'connected' ? 'Connected' : 
+                 activeCall.status === 'ringing' ? 'Ringing' : 'Calling...'}
+              </div>
+            </div>
+            
+            <button
+              onClick={endCall}
+              className="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-xl font-semibold transition-all duration-300 hover:scale-105 flex items-center gap-2"
+            >
+              <span>📴</span>
+              End Call
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Emergency Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mobile-stats">
         <StatCard
           title="Available Ambulances"
           value={ambulanceServices.filter(amb => amb.status === 'Available').length}
@@ -363,7 +495,7 @@ const EmergencyHelp = () => {
           <TabButton id="ambulance" label="Ambulance Services" icon="🚑" />
           <TabButton id="emergency" label="Emergency Call" icon="📞" />
           <TabButton id="contacts" label="Emergency Contacts" icon="📋" />
-          {/* <TabButton id="recent" label="Recent Calls" icon="📊" /> */}
+          <TabButton id="recent" label="Call History" icon="📊" />
         </div>
       </div>
 
@@ -415,12 +547,28 @@ const EmergencyHelp = () => {
                 </div>
                 
                 <div className="mt-4 flex gap-2">
-                  <button className="flex-1 px-4 py-2 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white rounded-lg hover:from-emerald-700 hover:to-cyan-700 transition-all duration-300 hover:scale-105">
-                    Call Now
+                  <button 
+                    onClick={() => initiateCall(ambulance.phone, ambulance.name, 'ambulance')}
+                    disabled={isCalling || ambulance.status === 'Busy'}
+                    className="flex-1 px-4 py-2 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white rounded-lg hover:from-emerald-700 hover:to-cyan-700 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {isCalling && activeCall?.contactName === ambulance.name ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Calling...
+                      </>
+                    ) : (
+                      <>
+                        <span>📞</span>
+                        Call Now
+                      </>
+                    )}
                   </button>
-                  <button className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 hover:scale-105">
-                    Track
-                  </button>
+                  {ambulance.status === 'Busy' && (
+                    <span className="px-3 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-medium">
+                      Busy
+                    </span>
+                  )}
                 </div>
               </div>
             ))}
@@ -601,8 +749,22 @@ const EmergencyHelp = () => {
                 </div>
                 
                 <div className="mt-4">
-                  <button className="w-full px-4 py-2 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-lg hover:from-red-700 hover:to-pink-700 transition-all duration-300 hover:scale-105">
-                    Call Now
+                  <button 
+                    onClick={() => initiateCall(contact.phone, contact.name, 'emergency')}
+                    disabled={isCalling}
+                    className="w-full px-4 py-2 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-lg hover:from-red-700 hover:to-pink-700 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {isCalling && activeCall?.contactName === contact.name ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Calling...
+                      </>
+                    ) : (
+                      <>
+                        <span>📞</span>
+                        Call Now
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -611,7 +773,7 @@ const EmergencyHelp = () => {
         </div>
       )}
 
-      {/* Recent Calls Tab */}
+      {/* Call History Tab */}
       {activeTab === 'recent' && (
         <div className="space-y-6 animate-fadeIn">
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-emerald-200/50">
@@ -619,46 +781,60 @@ const EmergencyHelp = () => {
               <span className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-lg">
                 📊
               </span>
-              Recent Emergency Calls
+              Call History
             </h3>
             
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-emerald-200">
-                    <th className="text-left py-4 px-6 text-emerald-600 font-semibold">Call ID</th>
-                    <th className="text-left py-4 px-6 text-emerald-600 font-semibold">Patient</th>
-                    <th className="text-left py-4 px-6 text-emerald-600 font-semibold">Emergency Type</th>
-                    <th className="text-left py-4 px-6 text-emerald-600 font-semibold">Time</th>
-                    <th className="text-left py-4 px-6 text-emerald-600 font-semibold">Status</th>
-                    <th className="text-left py-4 px-6 text-emerald-600 font-semibold">Ambulance</th>
-                    <th className="text-left py-4 px-6 text-emerald-600 font-semibold">ETA</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentCalls.map((call) => (
-                    <tr key={call.id} className="border-b border-emerald-100 hover:bg-emerald-50 transition-colors duration-200">
-                      <td className="py-4 px-6 font-mono text-gray-900">{call.id}</td>
-                      <td className="py-4 px-6">
-                        <div>
-                          <p className="font-semibold text-gray-900">{call.patientName}</p>
-                          <p className="text-sm text-gray-600">ID: {call.patientId}</p>
+            {callHistory.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-4xl text-gray-400">📞</span>
+                </div>
+                <h4 className="text-xl font-semibold text-gray-600 mb-2">No calls yet</h4>
+                <p className="text-gray-500">Your call history will appear here</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {callHistory.map((call) => (
+                  <div key={call.id} className="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:shadow-md transition-all duration-300">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                          call.status === 'ended' ? 'bg-green-100' :
+                          call.status === 'missed' ? 'bg-red-100' :
+                          'bg-yellow-100'
+                        }`}>
+                          <span className="text-xl">
+                            {call.status === 'ended' ? '✅' :
+                             call.status === 'missed' ? '❌' : '📞'}
+                          </span>
                         </div>
-                      </td>
-                      <td className="py-4 px-6 text-gray-900">{call.emergencyType}</td>
-                      <td className="py-4 px-6 text-gray-900">{call.time}</td>
-                      <td className="py-4 px-6">
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(call.status)}`}>
-                          {call.status}
-                        </span>
-                      </td>
-                      <td className="py-4 px-6 text-gray-900">{call.ambulance}</td>
-                      <td className="py-4 px-6 text-gray-900">{call.eta}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        <div>
+                          <h4 className="text-lg font-semibold text-gray-900">{call.contactName}</h4>
+                          <p className="text-gray-600">{call.phoneNumber}</p>
+                          <p className="text-sm text-gray-500">
+                            {call.startTime.toLocaleString()} • {call.contactType}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-gray-900">
+                          {call.duration > 0 ? formatDuration(call.duration) : '--:--'}
+                        </div>
+                        <div className={`text-sm font-medium ${
+                          call.status === 'ended' ? 'text-green-600' :
+                          call.status === 'missed' ? 'text-red-600' :
+                          'text-yellow-600'
+                        }`}>
+                          {call.status === 'ended' ? 'Completed' :
+                           call.status === 'missed' ? 'Missed' : 'In Progress'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

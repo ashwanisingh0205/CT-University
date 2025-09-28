@@ -144,7 +144,27 @@ const Layout = ({ children, selectedSection, onSectionChange }) => {
       description: 'Ambulance & Emergency Services',
     color: 'from-black-300 to-black-400'
     },
-    
+    { 
+      text: 'HR Management', 
+      icon: '👥', 
+      id: 'hr-management', 
+      description: 'Manage Doctors, Staff & Administration',
+      color: 'from-black-300 to-black-400'
+    },
+    { 
+      text: 'TPA Management', 
+      icon: '🏢', 
+      id: 'tpa-management', 
+      description: 'Third Party Administrator & Insurance',
+      color: 'from-black-300 to-black-400'
+    },
+    { 
+      text: 'Claim Management', 
+      icon: '📄', 
+      id: 'claim-management', 
+      description: 'Insurance Claims Processing & Management',
+      color: 'from-black-300 to-black-400'
+    }
   ];
 
   const handleLogout = () => {
@@ -178,29 +198,30 @@ const Layout = ({ children, selectedSection, onSectionChange }) => {
       </div>
 
       {/* Interactive Mobile Header */}
-      <div className="sticky top-0 z-40 md:hidden flex items-center justify-between bg-white/95 backdrop-blur-xl px-4 py-3 shadow-2xl border-b border-green-300/40">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full border-2 border-green-200 shadow-lg flex items-center justify-center bg-gradient-to-br from-green-300 to-emerald-300 animate-glow-pulse">
-            <img src={its} alt="Arogya Logo" className="w-6 h-6 object-contain rounded-full" />
+      <div className="sticky top-0 z-40 md:hidden flex items-center justify-between bg-white/95 backdrop-blur-xl px-3 sm:px-4 py-2 sm:py-3 shadow-2xl border-b border-green-300/40">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-green-200 shadow-lg flex items-center justify-center bg-gradient-to-br from-green-300 to-emerald-300 animate-glow-pulse">
+            <img src={its} alt="Arogya Logo" className="w-5 h-5 sm:w-6 sm:h-6 object-contain rounded-full" />
           </div>
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400 text-lg font-bold tracking-wide">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400 text-base sm:text-lg font-bold tracking-wide">
             Arogya
           </span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {/* Interactive Mobile Sign Out Button */}
           <button
             onClick={handleLogout}
-            className="px-3 py-2 text-green-400 hover:text-white bg-green-50/90 hover:bg-green-300 rounded-lg transition-all duration-300 text-sm font-medium border border-green-200/60 hover:shadow-lg hover:scale-105"
+            className="px-2 py-1.5 sm:px-3 sm:py-2 text-green-400 hover:text-white bg-green-50/90 hover:bg-green-300 rounded-lg transition-all duration-300 text-xs sm:text-sm font-medium border border-green-200/60 hover:shadow-lg hover:scale-105 mobile-touch-target"
           >
-            Sign Out
+            <span className="hidden sm:inline">Sign Out</span>
+            <span className="sm:hidden">Out</span>
           </button>
           {/* Interactive Mobile Menu Toggle */}
           <button 
             onClick={() => setSidebarOpen(!sidebarOpen)} 
-            className="text-green-400 hover:text-green-300 focus:outline-none transition-all duration-300 hover:scale-110 p-2 rounded-lg hover:bg-green-50/70 hover:shadow-md"
+            className="text-green-400 hover:text-green-300 focus:outline-none transition-all duration-300 hover:scale-110 p-1.5 sm:p-2 rounded-lg hover:bg-green-50/70 hover:shadow-md mobile-touch-target"
           >
-            <span className="text-xl">☰</span>
+            <span className="text-lg sm:text-xl">☰</span>
           </button>
         </div>
       </div>
@@ -214,7 +235,7 @@ const Layout = ({ children, selectedSection, onSectionChange }) => {
       )}
 
       {/* Interactive Healthcare Sidebar */}
-      <div className={`fixed md:fixed md:top-0 z-30 top-0 left-0 h-screen w-64 bg-white/95 backdrop-blur-xl shadow-2xl flex flex-col transition-all duration-500 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 border-r border-green-200/60`}>
+      <div className={`fixed md:fixed md:top-0 z-30 top-0 left-0 h-screen w-64 sm:w-72 bg-white/95 backdrop-blur-xl shadow-2xl flex flex-col transition-all duration-500 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 border-r border-green-200/60`}>
         {/* Interactive Logo Section */}
         <div className="hidden md:flex flex-col items-center gap-4 p-6 border-b border-green-200/60">
           <div className="w-16 h-16 rounded-full border-2 border-green-200 shadow-lg flex items-center justify-center bg-gradient-to-br from-green-300 to-emerald-300 animate-glow-pulse">
@@ -233,7 +254,7 @@ const Layout = ({ children, selectedSection, onSectionChange }) => {
         <div className="border-b border-green-200/60 mb-4 hidden md:block"></div>
 
         {/* Interactive Healthcare Menu Items */}
-        <nav className="flex-1 px-4 py-4 space-y-3 overflow-y-auto">
+        <nav className="flex-1 px-3 sm:px-4 py-4 space-y-2 sm:space-y-3 overflow-y-auto">
           {menuItems.map((item, index) => (
             <div
               key={item.id}
@@ -242,20 +263,20 @@ const Layout = ({ children, selectedSection, onSectionChange }) => {
             >
               <button
                 onClick={() => { onSectionChange(item.id); setSidebarOpen(false); }}
-                className={`w-full group relative overflow-hidden rounded-lg transition-all duration-300 text-left font-medium tracking-wide text-sm transform-gpu hover:scale-105 hover:shadow-lg
+                className={`w-full group relative overflow-hidden rounded-lg transition-all duration-300 text-left font-medium tracking-wide text-xs sm:text-sm transform-gpu hover:scale-105 hover:shadow-lg mobile-touch-target
                   ${selectedSection === item.id
                     ? `hover:bg-gradient-to-r from-black-300 to-black-400 hover:shadow-md hover:ring-1 text-black`
                     : ' hover:bg-gradient-to-r from-black-300 to-black-400  hover:shadow-md hover:ring-1 '
                   }
                 `}
               >
-                <div className="flex items-center gap-3 px-4 py-3">
-                  <div className={`w-8 h-8 rounded-md flex items-center justify-center text-lg bg-gradient-to-br ${item.color}/15 border border-green-200/60 group-hover:animate-bounce-gentle`}>
+                <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3">
+                  <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-md flex items-center justify-center text-sm sm:text-lg bg-gradient-to-br ${item.color}/15 border border-green-200/60 group-hover:animate-bounce-gentle`}>
                     {item.icon}
                   </div>
-                  <div className="flex-1">
-                    <span className="font-semibold text-sm block">{item.text}</span>
-                    <p className="text-xs text-green-900 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 leading-relaxed">
+                  <div className="flex-1 min-w-0">
+                    <span className="font-semibold text-xs sm:text-sm block truncate">{item.text}</span>
+                    <p className="text-xs text-green-900 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 leading-relaxed hidden sm:block">
                       {item.description}
                     </p>
                   </div>
@@ -330,8 +351,8 @@ const Layout = ({ children, selectedSection, onSectionChange }) => {
         </header>
 
         {/* Interactive Main Content Area */}
-        <main className="flex-1 p-4 sm:p-6 md:p-8 lg:p-10 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 relative overflow-y-auto">
-          <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-green-200/60 p-4 sm:p-6 md:p-8 min-h-full transition-all duration-700 hover:shadow-green-400/30 relative overflow-hidden">
+        <main className="flex-1 p-2 sm:p-4 md:p-6 lg:p-8 xl:p-10 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 relative overflow-y-auto">
+          <div className="bg-white/95 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-xl border border-green-200/60 p-3 sm:p-4 md:p-6 lg:p-8 min-h-full transition-all duration-700 hover:shadow-green-400/30 relative overflow-hidden">
             {/* Interactive content background pattern */}
             <div className="absolute inset-0 opacity-3">
               <div className="absolute inset-0" style={{

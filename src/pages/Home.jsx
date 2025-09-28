@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Dashboard from './Dashboard'
 import PatientRegistration from './PatientRegistration'
 import BedBooking from './BedBooking'
@@ -8,14 +8,29 @@ import PatientReports from './PatientReports'
 import EmergencyHelp from './EmergencyHelp'
 import BloodBank from './BloodBank'
 import ChatBot from './ChatBot'
-import Inventory from './Inventory'
 import Layout from '../ui/Layout'
-import Orders from './Orders'
 import Settings from './Settings'
+import HRManagement from './HRManagement'
+import TPAManagement from './TPAManagement'
+import ClaimManagement from './ClaimManagement'
 
 export default function Home() {
 
     const [selectedSection, setSelectedSection] = useState('dashboard')
+
+    // Event listener for navigation from Dashboard
+    useEffect(() => {
+        const handleNavigation = (event) => {
+            const { section } = event.detail;
+            setSelectedSection(section);
+        };
+
+        window.addEventListener('navigateToSection', handleNavigation);
+
+        return () => {
+            window.removeEventListener('navigateToSection', handleNavigation);
+        };
+    }, []);
 
    const renderSection=()=>{
     switch(selectedSection){
@@ -43,6 +58,12 @@ export default function Home() {
         return <Inventory />
       case 'users':
         return <Settings />
+      case 'hr-management':
+        return <HRManagement />
+      case 'tpa-management':
+        return <TPAManagement />
+      case 'claim-management':
+        return <ClaimManagement />
        
       default:
         return <Dashboard />

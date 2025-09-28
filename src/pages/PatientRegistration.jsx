@@ -213,7 +213,7 @@ const PatientRegistration = () => {
               </span>
               Personal Information
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mobile-form">
               <InputField
                 label="First Name"
                 name="firstName"
@@ -273,7 +273,7 @@ const PatientRegistration = () => {
                 onChange={handleInputChange}
               />
             </div>
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mobile-form">
               <InputField
                 label="City"
                 name="city"
@@ -310,7 +310,7 @@ const PatientRegistration = () => {
               </span>
               Emergency Contact
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mobile-form">
               <InputField
                 label="Emergency Contact Name"
                 name="emergencyContact"
@@ -339,7 +339,7 @@ const PatientRegistration = () => {
               </span>
               Medical Information
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mobile-form">
               <InputField
                 label="Blood Type"
                 name="bloodType"

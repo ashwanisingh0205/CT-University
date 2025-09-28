@@ -235,7 +235,7 @@ const BedBooking = () => {
           Available Rooms & Beds
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
           {rooms.map((room) => (
             <div
               key={room.id}
@@ -384,37 +384,37 @@ const BedBooking = () => {
       )}
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-emerald-200/50 text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-2xl">🏥</span>
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mobile-stats">
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 shadow-lg border border-emerald-200/50 text-center stat-card">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
+            <span className="text-lg sm:text-xl md:text-2xl">🏥</span>
           </div>
-          <h3 className="text-lg font-bold text-gray-900 mb-2">Total Rooms</h3>
-          <p className="text-3xl font-bold text-emerald-600">{rooms.length}</p>
+          <h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 mb-1 sm:mb-2">Total Rooms</h3>
+          <p className="text-xl sm:text-2xl md:text-3xl font-bold text-emerald-600">{rooms.length}</p>
         </div>
         
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-emerald-200/50 text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-2xl">🛏️</span>
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 shadow-lg border border-emerald-200/50 text-center stat-card">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
+            <span className="text-lg sm:text-xl md:text-2xl">🛏️</span>
           </div>
-          <h3 className="text-lg font-bold text-gray-900 mb-2">Available Beds</h3>
-          <p className="text-3xl font-bold text-cyan-600">{rooms.reduce((sum, room) => sum + room.available, 0)}</p>
+          <h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 mb-1 sm:mb-2">Available Beds</h3>
+          <p className="text-xl sm:text-2xl md:text-3xl font-bold text-cyan-600">{rooms.reduce((sum, room) => sum + room.available, 0)}</p>
         </div>
         
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-emerald-200/50 text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-2xl">📊</span>
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 shadow-lg border border-emerald-200/50 text-center stat-card">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
+            <span className="text-lg sm:text-xl md:text-2xl">📊</span>
           </div>
-          <h3 className="text-lg font-bold text-gray-900 mb-2">Occupancy Rate</h3>
-          <p className="text-3xl font-bold text-purple-600">78%</p>
+          <h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 mb-1 sm:mb-2">Occupancy Rate</h3>
+          <p className="text-xl sm:text-2xl md:text-3xl font-bold text-purple-600">78%</p>
         </div>
         
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-emerald-200/50 text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-2xl">🚨</span>
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 shadow-lg border border-emerald-200/50 text-center stat-card">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-red-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
+            <span className="text-lg sm:text-xl md:text-2xl">🚨</span>
           </div>
-          <h3 className="text-lg font-bold text-gray-900 mb-2">Emergency Beds</h3>
-          <p className="text-3xl font-bold text-red-600">2</p>
+          <h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 mb-1 sm:mb-2">Emergency Beds</h3>
+          <p className="text-xl sm:text-2xl md:text-3xl font-bold text-red-600">2</p>
         </div>
       </div>
     </div>

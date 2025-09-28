@@ -458,297 +458,75 @@ const BackgroundBeams = () => {
       }
     }
 
-    // Heartbeat/ECG Animation class
-    class HeartbeatAnimation {
+    // Organism class with flowing movement
+    class Organism {
       constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.time = 0;
-        this.color = '#ff4757'; // Red for heartbeat
-        this.alpha = Math.random() * 0.6 + 0.3;
-        this.amplitude = Math.random() * 30 + 20;
-        this.frequency = Math.random() * 0.02 + 0.01;
-        this.points = [];
-        this.maxPoints = 100;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        this.size = Math.random() * 25 + 15;
+        this.color = `hsl(${Math.random() * 80 + 100}, 50%, 60%)`; // Green range
+        this.alpha = Math.random() * 0.4 + 0.2;
+        this.segments = [];
+        this.time = Math.random() * Math.PI * 2;
+        this.generateSegments();
+      }
+
+      generateSegments() {
+        // Create flowing segments for organism body
+        for (let i = 0; i < 8; i++) {
+          this.segments.push({
+            x: this.x + (i - 4) * 8,
+            y: this.y,
+            size: this.size * (1 - i * 0.1),
+            wave: Math.random() * Math.PI * 2,
+            waveSpeed: Math.random() * 0.03 + 0.01
+          });
+        }
       }
 
       update() {
-        this.time += this.frequency;
-        
-        // Generate ECG-like waveform
-        const heartbeat = this.generateHeartbeatWave(this.time);
-        const y = this.y + heartbeat * this.amplitude;
-        
-        this.points.push({ x: this.x, y: y, time: this.time });
-        
-        if (this.points.length > this.maxPoints) {
-          this.points.shift();
-        }
-        
-        // Move horizontally
-        this.x += 0.5;
-        if (this.x > canvas.width) {
-          this.x = -50;
-        }
-      }
+        this.x += this.vx;
+        this.y += this.vy;
+        this.time += 0.01;
 
-      generateHeartbeatWave(time) {
-        // Create ECG-like pattern
-        const baseFreq = time * 0.5;
-        let wave = Math.sin(baseFreq) * 0.3;
-        
-        // Add heartbeat spikes
-        const spikeFreq = time * 2;
-        if (Math.sin(spikeFreq) > 0.8) {
-          wave += Math.sin(spikeFreq * 10) * 0.7;
-        }
-        
-        return wave;
+        // Update segments with flowing motion
+        this.segments.forEach((segment, index) => {
+          segment.wave += segment.waveSpeed;
+          segment.x = this.x + (index - 4) * 8 + Math.sin(this.time + index * 0.5) * 10;
+          segment.y = this.y + Math.sin(segment.wave) * 5;
+        });
+
+        // Gentle boundary checking
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
       }
 
       draw() {
         ctx.save();
         ctx.globalAlpha = this.alpha;
-        ctx.strokeStyle = this.color;
-        ctx.lineWidth = 2;
-        ctx.shadowColor = this.color;
-        ctx.shadowBlur = 5;
         
+        // Draw organism body as connected segments
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 3;
         ctx.beginPath();
-        this.points.forEach((point, index) => {
+        
+        this.segments.forEach((segment, index) => {
           if (index === 0) {
-            ctx.moveTo(point.x, point.y);
+            ctx.moveTo(segment.x, segment.y);
           } else {
-            ctx.lineTo(point.x, point.y);
+            ctx.lineTo(segment.x, segment.y);
           }
         });
         ctx.stroke();
-        
-        // Draw current heartbeat point
-        if (this.points.length > 0) {
-          const currentPoint = this.points[this.points.length - 1];
-          ctx.fillStyle = this.color;
-          ctx.beginPath();
-          ctx.arc(currentPoint.x, currentPoint.y, 3, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        
-        ctx.restore();
-      }
-    }
 
-    // Blood Cell Animation class
-    class BloodCell {
-      constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.vx = (Math.random() - 0.5) * 1.5;
-        this.vy = (Math.random() - 0.5) * 1.5;
-        this.size = Math.random() * 8 + 5;
-        this.color = '#e74c3c'; // Red for blood cell
-        this.alpha = Math.random() * 0.7 + 0.3;
-        this.pulse = Math.random() * Math.PI * 2;
-        this.pulseSpeed = Math.random() * 0.05 + 0.02;
-        this.trail = [];
-        this.maxTrailLength = 8;
-      }
-
-      update() {
-        // Add to trail
-        this.trail.push({ x: this.x, y: this.y, alpha: this.alpha });
-        if (this.trail.length > this.maxTrailLength) {
-          this.trail.shift();
-        }
-
-        this.x += this.vx;
-        this.y += this.vy;
-        this.pulse += this.pulseSpeed;
-        
-        // Blood flow motion
-        this.y += Math.sin(this.pulse) * 0.5;
-        
-        // Bounce off edges
-        if (this.x <= 0 || this.x >= canvas.width) this.vx *= -1;
-        if (this.y <= 0 || this.y >= canvas.height) this.vy *= -1;
-      }
-
-      draw() {
-        ctx.save();
-        
-        // Draw trail
-        this.trail.forEach((point, index) => {
-          const trailAlpha = (index / this.trail.length) * this.alpha * 0.3;
-          ctx.globalAlpha = trailAlpha;
-          ctx.fillStyle = this.color;
-          ctx.beginPath();
-          ctx.arc(point.x, point.y, this.size * 0.5, 0, Math.PI * 2);
-          ctx.fill();
-        });
-
-        // Draw blood cell
-        ctx.globalAlpha = this.alpha;
-        ctx.shadowColor = this.color;
-        ctx.shadowBlur = 10;
-        
-        // Outer ring
+        // Draw organism head
         ctx.fillStyle = this.color;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.arc(this.segments[0].x, this.segments[0].y, this.segments[0].size * 0.6, 0, Math.PI * 2);
         ctx.fill();
-        
-        // Inner core
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size * 0.4, 0, Math.PI * 2);
-        ctx.fill();
-        
-        ctx.restore();
-      }
-    }
 
-    // Medical Equipment Animation class
-    class MedicalEquipment {
-      constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.type = Math.random() > 0.5 ? 'stethoscope' : 'syringe';
-        this.color = '#2c3e50'; // Dark medical equipment color
-        this.alpha = Math.random() * 0.5 + 0.3;
-        this.rotation = Math.random() * Math.PI * 2;
-        this.rotationSpeed = (Math.random() - 0.5) * 0.02;
-        this.pulse = Math.random() * Math.PI * 2;
-        this.pulseSpeed = Math.random() * 0.03 + 0.01;
-      }
-
-      update() {
-        this.rotation += this.rotationSpeed;
-        this.pulse += this.pulseSpeed;
-        
-        // Gentle floating
-        this.y += Math.sin(this.pulse) * 0.3;
-      }
-
-      draw() {
-        ctx.save();
-        ctx.globalAlpha = this.alpha;
-        ctx.translate(this.x, this.y);
-        ctx.rotate(this.rotation);
-        
-        if (this.type === 'stethoscope') {
-          this.drawStethoscope();
-        } else {
-          this.drawSyringe();
-        }
-        
-        ctx.restore();
-      }
-
-      drawStethoscope() {
-        ctx.strokeStyle = this.color;
-        ctx.lineWidth = 3;
-        
-        // Draw stethoscope tube
-        ctx.beginPath();
-        ctx.moveTo(-20, 0);
-        ctx.quadraticCurveTo(-10, -15, 0, -10);
-        ctx.quadraticCurveTo(10, -5, 20, 0);
-        ctx.stroke();
-        
-        // Draw chest piece
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(0, -10, 8, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      drawSyringe() {
-        ctx.strokeStyle = this.color;
-        ctx.lineWidth = 2;
-        
-        // Draw syringe body
-        ctx.beginPath();
-        ctx.rect(-15, -5, 30, 10);
-        ctx.stroke();
-        
-        // Draw plunger
-        ctx.beginPath();
-        ctx.rect(-18, -3, 6, 6);
-        ctx.stroke();
-        
-        // Draw needle
-        ctx.beginPath();
-        ctx.moveTo(15, 0);
-        ctx.lineTo(25, 0);
-        ctx.stroke();
-      }
-    }
-
-    // Pulse Wave Animation class
-    class PulseWave {
-      constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.time = 0;
-        this.color = '#3498db'; // Blue for pulse
-        this.alpha = Math.random() * 0.6 + 0.3;
-        this.amplitude = Math.random() * 25 + 15;
-        this.frequency = Math.random() * 0.03 + 0.01;
-        this.waves = [];
-        this.maxWaves = 3;
-      }
-
-      update() {
-        this.time += this.frequency;
-        
-        // Generate pulse wave
-        const pulse = Math.sin(this.time) * this.amplitude;
-        const y = this.y + pulse;
-        
-        this.waves.push({ x: this.x, y: y, time: this.time, radius: 0 });
-        
-        // Update existing waves
-        this.waves.forEach(wave => {
-          wave.radius += 1;
-          wave.alpha = Math.max(0, 1 - (wave.radius / 50));
-        });
-        
-        // Remove old waves
-        this.waves = this.waves.filter(wave => wave.radius < 50);
-        
-        // Move horizontally
-        this.x += 0.3;
-        if (this.x > canvas.width) {
-          this.x = -30;
-        }
-      }
-
-      draw() {
-        ctx.save();
-        
-        // Draw expanding pulse waves
-        this.waves.forEach(wave => {
-          ctx.globalAlpha = wave.alpha * this.alpha;
-          ctx.strokeStyle = this.color;
-          ctx.lineWidth = 2;
-          ctx.shadowColor = this.color;
-          ctx.shadowBlur = 5;
-          
-          ctx.beginPath();
-          ctx.arc(wave.x, wave.y, wave.radius, 0, Math.PI * 2);
-          ctx.stroke();
-        });
-        
-        // Draw current pulse point
-        if (this.waves.length > 0) {
-          const currentWave = this.waves[this.waves.length - 1];
-          ctx.globalAlpha = this.alpha;
-          ctx.fillStyle = this.color;
-          ctx.beginPath();
-          ctx.arc(currentWave.x, currentWave.y, 4, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        
         ctx.restore();
       }
     }
@@ -758,12 +536,7 @@ const BackgroundBeams = () => {
     const dnaStrands = Array.from({ length: 4 }, () => new DNAStrand());
     const chromosomes = Array.from({ length: 5 }, () => new Chromosome());
     const chromosomePairs = Array.from({ length: 3 }, () => new ChromosomePair());
-    
-    // Create healthcare-specific animations
-    const heartbeats = Array.from({ length: 2 }, () => new HeartbeatAnimation());
-    const bloodCells = Array.from({ length: 8 }, () => new BloodCell());
-    const medicalEquipment = Array.from({ length: 4 }, () => new MedicalEquipment());
-    const pulseWaves = Array.from({ length: 3 }, () => new PulseWave());
+    const organisms = Array.from({ length: 3 }, () => new Organism());
     
     // Global nucleotide particles array
     let nucleotideParticles = [];
@@ -776,7 +549,6 @@ const BackgroundBeams = () => {
         nucleotideParticles.push(new NucleotideParticle(x, y));
       }
     };
-
 
     // Animation loop
     const animate = () => {
@@ -807,25 +579,9 @@ const BackgroundBeams = () => {
         pair.draw();
       });
 
-      // Update and draw healthcare-specific animations
-      heartbeats.forEach(heartbeat => {
-        heartbeat.update();
-        heartbeat.draw();
-      });
-
-      bloodCells.forEach(bloodCell => {
-        bloodCell.update();
-        bloodCell.draw();
-      });
-
-      medicalEquipment.forEach(equipment => {
-        equipment.update();
-        equipment.draw();
-      });
-
-      pulseWaves.forEach(pulseWave => {
-        pulseWave.update();
-        pulseWave.draw();
+      organisms.forEach(organism => {
+        organism.update();
+        organism.draw();
       });
 
       // Update and draw nucleotide particles
